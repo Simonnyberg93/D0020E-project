@@ -2,23 +2,22 @@ package com.example.d0020e_project;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import org.opencv.android.OpenCVLoader;
 
 public class MainActivity extends AppCompatActivity {
-    private static String TAG = "MainActivity";
-    static {
-        if(OpenCVLoader.initDebug()){
-            Log.d(TAG, "Opencv installed successfully");
-        } else {
-            Log.d(TAG,"Opencv did not install successfully.");
-        }
-    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Button camBtn = findViewById(R.id.cameraBtn);
+        camBtn.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, CameraActivity.class)));
     }
 }
