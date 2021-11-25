@@ -7,9 +7,22 @@
 
     <org.opencv.android.JavaCameraView
         android:id="@+id/my_camera_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        />
+        android:layout_width="match_parent"
+        android:layout_height="667dp" />
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/my_camera_view"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="163dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="154dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/back_button" />
 
 
 </RelativeLayout>

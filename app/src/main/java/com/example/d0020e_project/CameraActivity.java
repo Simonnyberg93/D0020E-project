@@ -1,10 +1,11 @@
 package com.example.d0020e_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Surface;
 import android.view.SurfaceView;
-
+import android.view.WindowManager;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -24,31 +25,38 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
             @Override
             public void onManagerConnected(int status) {
-                switch (status){
-                    case BaseLoaderCallback.SUCCESS: {
-                        javaCameraView.enableView();
-                        break;
-                    }
-                    default:
-                    {
-                        super.onManagerConnected(status);
-                        break;
-                    }
-                    }
+                if (status == BaseLoaderCallback.SUCCESS) {
+                    javaCameraView.enableView();
+                } else {
+                    super.onManagerConnected( status );
+                }
             }
         };
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.camera_activity);
 
+//            Might need this in order to ask for camera permissions
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+//                    == PackageManager.PERMISSION_DENIED) {
+//                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, 200);
+//            }
+
+            setContentView(R.layout.camera_activity);
             javaCameraView = (JavaCameraView) findViewById(R.id.my_camera_view);
+            javaCameraView.setCameraPermissionGranted();
             javaCameraView.setVisibility(SurfaceView.VISIBLE);
             javaCameraView.setCvCameraViewListener(CameraActivity.this);
 
+            // make sure screen does not go dark
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-
+            Button btnBack = findViewById( R.id.btnBack );
+            btnBack.setOnClickListener( v -> {
+                startActivity( new Intent(CameraActivity.this, MainActivity.class));
+                finish();
+            } );
         }
 
     @Override
@@ -97,10 +105,10 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         String TAG = "CameraActivity";
         super.onResume();
         if(OpenCVLoader.initDebug()){
-            Log.d(TAG, "Opencv installed successfully");
+            Log.d(TAG, "OpenCV is working!");
             baseLoaderCallback.onManagerConnected(BaseLoaderCallback.SUCCESS);
         } else {
-            Log.d(TAG,"Opencv did not install successfully.");
+            Log.d(TAG,"Opencv is not working!");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, baseLoaderCallback);
         }
     }
