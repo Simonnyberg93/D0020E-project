@@ -22,7 +22,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="154dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/back_button" />
+        android:text="back_button" />
 
 
 </RelativeLayout>

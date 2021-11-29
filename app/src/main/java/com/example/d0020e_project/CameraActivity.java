@@ -1,12 +1,16 @@
 package com.example.d0020e_project;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -37,11 +41,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
-//            Might need this in order to ask for camera permissions
-//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-//                    == PackageManager.PERMISSION_DENIED) {
-//                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, 200);
-//            }
+            //Might need this in order to ask for camera permissions
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, 200);
+            }
 
             setContentView(R.layout.camera_activity);
             javaCameraView = (JavaCameraView) findViewById(R.id.my_camera_view);
