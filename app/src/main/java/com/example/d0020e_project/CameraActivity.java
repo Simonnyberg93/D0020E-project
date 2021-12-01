@@ -17,14 +17,13 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 
 public class CameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
         private JavaCameraView javaCameraView;
-        private Mat mRGBA, mRGBAT;
+        private Mat mRGBA, mRGBAT, dst;
 
         BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
             @Override
@@ -48,7 +47,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             }
 
             setContentView(R.layout.camera_activity);
-            javaCameraView = (JavaCameraView) findViewById(R.id.my_camera_view);
+            javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
             javaCameraView.setCameraPermissionGranted();
             javaCameraView.setVisibility(SurfaceView.VISIBLE);
             javaCameraView.setCvCameraViewListener(CameraActivity.this);
@@ -65,7 +64,8 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        mRGBA = new Mat(height, width, CvType.CV_8UC4);
+        mRGBAT = new Mat();
+        dst = new Mat();
     }
 
     @Override
@@ -76,16 +76,16 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRGBA = inputFrame.rgba();
-        mRGBAT = mRGBA.t();
-        Core.flip(mRGBA.t(), mRGBAT, 1);
-        Imgproc.resize(mRGBAT, mRGBAT, mRGBA.size());
-        return mRGBAT;
+        Core.transpose(mRGBA, mRGBAT);
+        Core.flip(mRGBAT, mRGBAT, 1);
+        Imgproc.resize(mRGBAT, dst, mRGBA.size());
+        mRGBA.release();
+        mRGBAT.release();
+        return dst;
     }
 
     @Override
-    public void onPointerCaptureChanged(boolean hasCapture){
-
-    }
+    public void onPointerCaptureChanged(boolean hasCapture){ }
 
 
     @Override
