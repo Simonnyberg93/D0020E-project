@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -424,11 +425,28 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
 
         if (bmpValid && mCacheBitmap != null) {
             Canvas canvas = getHolder().lockCanvas();
+            canvas.rotate(-90f, canvas.getWidth()/2, canvas.getHeight()/2);
             if (canvas != null) {
                 canvas.drawColor(0, android.graphics.PorterDuff.Mode.CLEAR);
-                if (BuildConfig.DEBUG)
-                    Log.d(TAG, "mStretch value: " + mScale);
-
+                //// THIS IS THE CHANGED PART /////////////////////
+                int width = mCacheBitmap.getWidth();
+                int height = mCacheBitmap.getHeight();
+                float scaleWidth = ((float) canvas.getWidth()) / width;
+                float scaleHeight = (((float) canvas.getHeight()) / height);
+                float fScale = Math.min(scaleHeight,  scaleWidth);
+                // CREATE A MATRIX FOR THE MANIPULATION
+                Matrix matrix = new Matrix();
+                // RESIZE THE BITMAP
+                matrix.postScale(fScale, fScale);
+                /////////////////////////////////////////////////////
+                // RECREATE THE NEW BITMAP
+                Bitmap resizedBitmap = Bitmap.createBitmap(mCacheBitmap, 0, 0, width, height, matrix, false);
+                canvas.drawBitmap(resizedBitmap, (canvas.getWidth() - resizedBitmap.getWidth()) / 2, (canvas.getHeight() - resizedBitmap.getHeight()) / 2, null);
+                if (mFpsMeter != null) {
+                    mFpsMeter.measure();
+                    mFpsMeter.draw(canvas, 20, 30);
+                }
+                getHolder().unlockCanvasAndPost(canvas);
                 if (mScale != 0) {
                     canvas.drawBitmap(mCacheBitmap, new Rect(0,0,mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
                          new Rect((int)((canvas.getWidth() - mScale*mCacheBitmap.getWidth()) / 2),
@@ -447,7 +465,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
                     mFpsMeter.measure();
                     mFpsMeter.draw(canvas, 20, 30);
                 }
-                getHolder().unlockCanvasAndPost(canvas);
+//                getHolder().unlockCanvasAndPost(canvas);
             }
         }
     }

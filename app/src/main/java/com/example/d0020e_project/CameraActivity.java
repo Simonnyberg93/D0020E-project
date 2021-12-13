@@ -19,15 +19,11 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import static org.opencv.imgproc.Imgproc.boundingRect;
-import static org.opencv.imgproc.Imgproc.circle;
-import static org.opencv.imgproc.Imgproc.line;
-import static org.opencv.imgproc.Imgproc.putText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,17 +34,23 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private JavaCameraView javaCameraView;
 
     private Rect objectBoundingRectangle = new Rect(0,0,0,0);
-    private int theObject[] = {0,0};
 
-    private boolean objectDetected = false;
+    private int BOXWIDTH = 0;
+    private int BOXHEIGHT = 0;
+    private int frameWidth = 0;
+    private int frameHeight = 0;
+
+    private int theFirstObject[] = {0,0};
+
     private boolean debugMode = false;
     private boolean trackingEnable = true;
 
-    Mat frame1, frame2, grayImage1, grayImage2, differenceImage, thresholdImage;
-    CameraBridgeViewBase.CvCameraViewFrame prevFrame;
+    private Mat frame1, frame2, grayImage1, grayImage2, differenceImage, thresholdImage;
+    private CameraBridgeViewBase.CvCameraViewFrame prevFrame;
 
-    int SENSITIVITY_VALUE = 20;
-    int BLUR_SIZE = 10;
+    private final int SENSITIVITY_VALUE = 50;
+    private final int BLUR_SIZE = 30;
+    private final Scalar WHITE = new Scalar( 255,255,255,0 );
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
             @Override
@@ -94,6 +96,10 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onCameraViewStarted(int width, int height) {
+        frameHeight = height;
+        frameWidth  = width;
+        BOXHEIGHT = frameHeight / 4;
+        BOXWIDTH = ( int ) Math.ceil( frameWidth / 6 );
         frame1 = new Mat();
         frame2 = new Mat();
         grayImage1 = new Mat();
@@ -110,61 +116,70 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         //Imgproc.findContours( temp, contours, heirarchy, Imgproc.RETR_CCOMP   , Imgproc.CHAIN_APPROX_SIMPLE ); // retrieves all contours
         Imgproc.findContours( temp, contours, heirarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE ); // all external contours
 
-        //if contours vector is not empty, we have found some objects
         if (contours.size() > 0) {
-            objectDetected = true;
-        }else {
-            objectDetected = false;
-        }
-
-        if (objectDetected) {
             //the largest contour is found at the end of the contours vector
             //we will simply assume that the biggest contour is the object we are looking for.
             List<Mat> largestContourVec = new ArrayList<>();
             largestContourVec.add( contours.get( contours.size() - 1 ) );
+            //largestContourVec.add( contours.get( contours.size() - 2 ) );
 
             //make a bounding rectangle around the largest contour then find its centroid
             //this will be the object's final estimated position.
             objectBoundingRectangle = boundingRect(largestContourVec.get( 0 ));
+            //objectBoundingRectangle2 = boundingRect( largestContourVec.get( 1 ) );
+
             int xpos = objectBoundingRectangle.x+objectBoundingRectangle.width/2;
             int ypos = objectBoundingRectangle.y+objectBoundingRectangle.height/2;
 
+            //int x1 = objectBoundingRectangle2.x+objectBoundingRectangle2.width/2;
+            //int y1 = objectBoundingRectangle2.y+objectBoundingRectangle2.height/2;
+
             //update the objects positions by changing the 'theObject' array values
-            theObject[0] = xpos;
-            theObject[1] = ypos;
+            theFirstObject[0] = xpos;
+            theFirstObject[1] = ypos;
+
+            //theSecondObject[0] = x1;
+            //theSecondObject[1] = y1;
         }
         //make some temp x and y variables so we dont have to type out so much
-        int x = theObject[0];
-        int y = theObject[1];
+        int x = theFirstObject[0];
+        int y = theFirstObject[1];
 
-        // Here we will instead of drawing on screen send the coordinates to a function
-        // that plays sound based on the location of movement.
-        //draw some crosshairs around the object
-        circle(camerafeed, new Point(x,y),20, new Scalar(0,255,0),2);
-        line(camerafeed, new Point(x,y), new Point(x,y-25), new Scalar(0,255,0),2);
-        line(camerafeed, new Point(x,y), new Point(x,y+25), new Scalar(0,255,0),2);
-        line(camerafeed, new Point(x,y), new Point(x-25,y), new Scalar(0,255,0),2);
-        line(camerafeed, new Point(x,y), new Point(x+25,y), new Scalar(0,255,0),2);
+        //int x1 = theSecondObject[0];
+        //int y1 = theSecondObject[1];
+        if (x != -1 && y != -1){
+            if(y < BOXWIDTH){
+                // left
+                if (x > BOXWIDTH && x < BOXWIDTH * 2){
+                    System.out.println("Bottom left corner");
+                } else if (x > BOXWIDTH*2 && x < BOXWIDTH*3){
+                    System.out.println("Second left from bottom.");
+                }else if (x > BOXWIDTH*3 && x < BOXWIDTH*4){
+                    System.out.println("Thrird left from bottom.");
+                }else if (x > BOXWIDTH*4 && x < BOXWIDTH*5){
+                    System.out.println("Top Left.");
+                }
 
-        //write the position of the object to the screen
-        String s = "Tracking object at ("+ x + "," + y + ")";
-        putText(camerafeed, s, new Point(x, y), 1, 1, new Scalar( 255, 0, 0 ), 2);
+            } else if (y > (frameHeight - BOXWIDTH)){
+                // right
+                if (x > BOXWIDTH && x < BOXWIDTH * 2){
+                    System.out.println("Bottom right corner");
+                } else if (x > BOXWIDTH*2 && x < BOXWIDTH*3){
+                    System.out.println("Second right from bottom.");
+                }else if (x > BOXWIDTH*3 && x < BOXWIDTH*4){
+                    System.out.println("Thrird right from bottom.");
+                }else if (x > BOXWIDTH*4 && x < BOXWIDTH*5){
+                    System.out.println("Top right.");
+                }
+            } else if(y > (frameHeight / 2) - (BOXWIDTH / 2) && y < (frameHeight / 2) + (BOXWIDTH / 2) && x > (frameHeight - BOXHEIGHT)) {
+                // top box
+                System.out.println("Top box.");
+            }
+        }
+
+        theFirstObject[0] = -1;
+        theFirstObject[1] = -1;
         return camerafeed;
-    }
-
-    public void releaseObjects() {
-        frame1.release();
-        frame2.release();
-        grayImage1.release();
-        grayImage2.release();
-        differenceImage.release();
-        thresholdImage.release();
-
-    }
-
-    @Override
-    public void onCameraViewStopped() {
-        releaseObjects();
     }
 
     @Override
@@ -191,6 +206,21 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         Imgproc.blur(thresholdImage, thresholdImage, new Size(BLUR_SIZE, BLUR_SIZE) );
         Imgproc.threshold( thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, Imgproc.THRESH_BINARY );
 
+        // draw our sensor locations
+        // left
+        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 5),0,BOXWIDTH,BOXHEIGHT), WHITE );
+        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 4),0,BOXWIDTH,BOXHEIGHT), WHITE );
+        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 3),0,BOXWIDTH,BOXHEIGHT), WHITE );
+        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 2),0,BOXWIDTH,BOXHEIGHT), WHITE );
+        // right
+        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 5), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
+        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 4), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
+        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 3), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
+        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 2), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
+        // top
+        Imgproc.rectangle( frame1, new Rect(frameWidth - BOXHEIGHT, (frameHeight/2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), WHITE );
+
+
         if (debugMode == true) {
             frame1.release();
             frame2.release();
@@ -199,13 +229,27 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         }
         // if enabled search for contours on our thresholded image
         if (trackingEnable == true) {
-            differenceImage.release();
             return searchForMovement( thresholdImage, frame1 );
         }
         frame2.release();
         differenceImage.release();
         thresholdImage.release();
         return frame1;
+    }
+
+    public void releaseObjects() {
+        frame1.release();
+        frame2.release();
+        grayImage1.release();
+        grayImage2.release();
+        differenceImage.release();
+        thresholdImage.release();
+
+    }
+
+    @Override
+    public void onCameraViewStopped() {
+        releaseObjects();
     }
 
     @Override
