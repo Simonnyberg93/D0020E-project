@@ -3,6 +3,7 @@ package com.example.d0020e_project;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -39,7 +40,8 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private int BOXHEIGHT = 0;
     private int frameWidth = 0;
     private int frameHeight = 0;
-
+    private MediaPlayer sound;
+    private MediaPlayer sound2;
     private int theFirstObject[] = {0,0};
 
     private boolean debugMode = false;
@@ -78,6 +80,9 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             javaCameraView.setCameraPermissionGranted();
             javaCameraView.setVisibility(SurfaceView.VISIBLE);
             javaCameraView.setCvCameraViewListener(CameraActivity.this);
+            sound = MediaPlayer.create(this, R.raw.ljud);
+            sound2 = MediaPlayer.create(this, R.raw.ljud2);
+
 
             // make sure screen does not go dark
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -106,6 +111,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         grayImage2 = new Mat();
         differenceImage = new Mat();
         thresholdImage = new Mat();
+
     }
 
     public Mat searchForMovement(Mat thresholdImage, Mat camerafeed){
@@ -151,8 +157,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             if(y < BOXWIDTH){
                 // left
                 if (x > BOXWIDTH && x < BOXWIDTH * 2){
+
+                    sound.start();
                     System.out.println("Bottom left corner");
                 } else if (x > BOXWIDTH*2 && x < BOXWIDTH*3){
+                    sound2.start();
                     System.out.println("Second left from bottom.");
                 }else if (x > BOXWIDTH*3 && x < BOXWIDTH*4){
                     System.out.println("Thrird left from bottom.");
