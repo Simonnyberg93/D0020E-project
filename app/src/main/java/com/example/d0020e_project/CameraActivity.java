@@ -40,8 +40,9 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private int BOXHEIGHT = 0;
     private int frameWidth = 0;
     private int frameHeight = 0;
-    private MediaPlayer sound;
-    private MediaPlayer sound2;
+
+    private SoundPlayer soundPlayer;
+
     private int theFirstObject[] = {0,0};
 
     private boolean debugMode = false;
@@ -80,15 +81,13 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             javaCameraView.setCameraPermissionGranted();
             javaCameraView.setVisibility(SurfaceView.VISIBLE);
             javaCameraView.setCvCameraViewListener(CameraActivity.this);
-            sound = MediaPlayer.create(this, R.raw.ljud);
-            sound2 = MediaPlayer.create(this, R.raw.ljud2);
+            soundPlayer = new SoundPlayer( this, ( int[] ) getIntent().getSerializableExtra( "SoundProfile" ) );
 
-
-            // make sure screen does not go dark
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
             Button btnBack = findViewById( R.id.btnBack );
             btnBack.setOnClickListener( v -> {
+                soundPlayer.onExit();
                 startActivity( new Intent(CameraActivity.this, MainActivity.class));
                 finish();
             } );
@@ -158,31 +157,29 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 // left
                 if (x > BOXWIDTH && x < BOXWIDTH * 2){
 
-                    sound.start();
-                    System.out.println("Bottom left corner");
+                    soundPlayer.playSound( this, 0 );
                 } else if (x > BOXWIDTH*2 && x < BOXWIDTH*3){
-                    sound2.start();
-                    System.out.println("Second left from bottom.");
+                    soundPlayer.playSound( this,1 );
                 }else if (x > BOXWIDTH*3 && x < BOXWIDTH*4){
-                    System.out.println("Thrird left from bottom.");
+                    soundPlayer.playSound( this,2 );
                 }else if (x > BOXWIDTH*4 && x < BOXWIDTH*5){
-                    System.out.println("Top Left.");
+                    soundPlayer.playSound( this,3 );
                 }
 
             } else if (y > (frameHeight - BOXWIDTH)){
                 // right
                 if (x > BOXWIDTH && x < BOXWIDTH * 2){
-                    System.out.println("Bottom right corner");
+                    soundPlayer.playSound( this,4 );
                 } else if (x > BOXWIDTH*2 && x < BOXWIDTH*3){
-                    System.out.println("Second right from bottom.");
+                    soundPlayer.playSound( this,5 );
                 }else if (x > BOXWIDTH*3 && x < BOXWIDTH*4){
-                    System.out.println("Thrird right from bottom.");
+                    soundPlayer.playSound( this,6 );
                 }else if (x > BOXWIDTH*4 && x < BOXWIDTH*5){
-                    System.out.println("Top right.");
+                    soundPlayer.playSound( this,7 );
                 }
             } else if(y > (frameHeight / 2) - (BOXWIDTH / 2) && y < (frameHeight / 2) + (BOXWIDTH / 2) && x > (frameHeight - BOXHEIGHT)) {
                 // top box
-                System.out.println("Top box.");
+                soundPlayer.playSound( this,8 );
             }
         }
 
@@ -253,7 +250,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         grayImage2.release();
         differenceImage.release();
         thresholdImage.release();
-
     }
 
     @Override
