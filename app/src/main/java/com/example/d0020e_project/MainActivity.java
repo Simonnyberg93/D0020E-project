@@ -14,14 +14,12 @@ import android.widget.Spinner;
 
 public class MainActivity extends AppCompatActivity {
 
-    /*
-    * Todo, switch on profile and set appropiate sounds.
-    * */
     public int[] getSounds(String profile) {
         switch (profile){
-            case "Drum":
-                return  new int[] {R.raw.drumsnare1, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong};
+            case "Drums":
+                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
             default:
+                // TODO insert different sound profile
                 return new int[] {0};
         }
     }
@@ -45,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity( new Intent(MainActivity.this, CameraActivity.class).putExtra("SoundProfile",
                     getSounds( (String) soundProfileDropdown.getSelectedItem())));
             finish();
-        } );
-
+        });
     }
 }
