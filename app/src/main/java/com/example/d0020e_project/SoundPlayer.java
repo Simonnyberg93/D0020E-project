@@ -8,10 +8,12 @@ import android.os.Build;
 public class SoundPlayer {
 
     public SoundPool soundPool;
+    private CameraActivity camact;
     int[] sounds;
     int sound0, sound1,sound2,sound3,sound4,sound5,sound6,sound7,sound8;
 
-    public SoundPlayer( CameraActivity cameraActivity, int[] soundProfile ) {
+    public SoundPlayer( CameraActivity c, int[] soundProfile ) {
+        this.camact = c;
         this.sounds = soundProfile;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -25,15 +27,15 @@ public class SoundPlayer {
         } else {
             soundPool = new SoundPool( 9, AudioManager.STREAM_MUSIC, 0 );
         }
-        sound0 = soundPool.load( cameraActivity,  sounds[0], 1);
-        sound1 = soundPool.load( cameraActivity,  sounds[1], 1);
-        sound2 = soundPool.load( cameraActivity,  sounds[2], 1);
-        sound3 = soundPool.load( cameraActivity,  sounds[3], 1);
-        sound4 = soundPool.load( cameraActivity,  sounds[4], 1);
-        sound5 = soundPool.load( cameraActivity,  sounds[5], 1);
-        sound6 = soundPool.load( cameraActivity,  sounds[6], 1);
-        sound7 = soundPool.load( cameraActivity,  sounds[7], 1);
-        sound8 = soundPool.load( cameraActivity,  sounds[8], 1);
+        sound0 = soundPool.load( camact,  sounds[0], 1);
+        sound1 = soundPool.load( camact,  sounds[1], 1);
+        sound2 = soundPool.load( camact,  sounds[2], 1);
+        sound3 = soundPool.load( camact,  sounds[3], 1);
+        sound4 = soundPool.load( camact,  sounds[4], 1);
+        sound5 = soundPool.load( camact,  sounds[5], 1);
+        sound6 = soundPool.load( camact,  sounds[6], 1);
+        sound7 = soundPool.load( camact,  sounds[7], 1);
+        sound8 = soundPool.load( camact,  sounds[8], 1);
     }
 
     public void onExit(){
@@ -45,7 +47,7 @@ public class SoundPlayer {
         return sounds[i];
     }
 
-    public void playSound( CameraActivity cameraActivity, int i ) {
+    public void playSound( int i ) {
         switch (i) {
             case 0:
                 soundPool.play( sound0, 1, 1, 0, 0, 1 );

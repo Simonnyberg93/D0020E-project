@@ -70,7 +70,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
         super(context, attrs);
 
         int count = attrs.getAttributeCount();
-        Log.d(TAG, "Attr count: " + Integer.valueOf(count));
+       // Log.d(TAG, "Attr count: " + Integer.valueOf(count));
 
         TypedArray styledAttrs = getContext().obtainStyledAttributes(attrs, R.styleable.CameraBridgeViewBase);
         if (styledAttrs.getBoolean(R.styleable.CameraBridgeViewBase_show_fps, false))
@@ -161,7 +161,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
                     result = mOldStyleListener.onCameraFrame(inputFrame.gray());
                     break;
                 default:
-                    Log.e(TAG, "Invalid frame format! Only RGBA and Gray Scale are supported!");
+                  //  Log.e(TAG, "Invalid frame format! Only RGBA and Gray Scale are supported!");
             };
 
             return result;
@@ -193,7 +193,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
     };
 
     public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
-        Log.d(TAG, "call surfaceChanged event");
+       // Log.d(TAG, "call surfaceChanged event");
         synchronized(mSyncObject) {
             if (!mSurfaceExist) {
                 mSurfaceExist = true;
@@ -314,7 +314,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
      * Called when mSyncObject lock is held
      */
     private void checkCurrentState() {
-        Log.d(TAG, "call checkCurrentState");
+    //    Log.d(TAG, "call checkCurrentState");
         int targetState;
 
         if (mEnabled && mCameraPermissionGranted && mSurfaceExist && getVisibility() == VISIBLE) {
@@ -332,7 +332,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
     }
 
     private void processEnterState(int state) {
-        Log.d(TAG, "call processEnterState: " + state);
+     //   Log.d(TAG, "call processEnterState: " + state);
         switch(state) {
         case STARTED:
             onEnterStartedState();
@@ -350,7 +350,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
     }
 
     private void processExitState(int state) {
-        Log.d(TAG, "call processExitState: " + state);
+      //  Log.d(TAG, "call processExitState: " + state);
         switch(state) {
         case STARTED:
             onExitStartedState();
@@ -372,7 +372,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
     // NOTE: The order of bitmap constructor and camera connection is important for android 4.1.x
     // Bitmap must be constructed before surface
     private void onEnterStartedState() {
-        Log.d(TAG, "call onEnterStartedState");
+      //  Log.d(TAG, "call onEnterStartedState");
         /* Connect camera */
         if (!connectCamera(getWidth(), getHeight())) {
             AlertDialog ad = new AlertDialog.Builder(getContext()).create();
@@ -416,16 +416,16 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
             try {
                 Utils.matToBitmap(modified, mCacheBitmap);
             } catch(Exception e) {
-                Log.e(TAG, "Mat type: " + modified);
-                Log.e(TAG, "Bitmap type: " + mCacheBitmap.getWidth() + "*" + mCacheBitmap.getHeight());
-                Log.e(TAG, "Utils.matToBitmap() throws an exception: " + e.getMessage());
+              //  Log.e(TAG, "Mat type: " + modified);
+             //   Log.e(TAG, "Bitmap type: " + mCacheBitmap.getWidth() + "*" + mCacheBitmap.getHeight());
+             //   Log.e(TAG, "Utils.matToBitmap() throws an exception: " + e.getMessage());
                 bmpValid = false;
             }
         }
 
         if (bmpValid && mCacheBitmap != null) {
             Canvas canvas = getHolder().lockCanvas();
-            canvas.rotate(-90f, canvas.getWidth()/2, canvas.getHeight()/2);
+            canvas.rotate(90f, canvas.getWidth()/2, canvas.getHeight()/2);
 
             float mScale1 = (float) canvas.getHeight() / (float) (mCacheBitmap.getWidth());
             float mScale2 = (float) canvas.getWidth() / (float) (mCacheBitmap.getHeight());
@@ -500,7 +500,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
         for (Object size : supportedSizes) {
             int width = accessor.getWidth(size);
             int height = accessor.getHeight(size);
-            Log.d(TAG, "trying size: " + width + "x" + height);
+          //  Log.d(TAG, "trying size: " + width + "x" + height);
 
             if (width <= maxAllowedWidth && height <= maxAllowedHeight) {
                 if (width >= calcWidth && height >= calcHeight) {
@@ -511,7 +511,7 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
         }
         if ((calcWidth == 0 || calcHeight == 0) && supportedSizes.size() > 0)
         {
-            Log.i(TAG, "fallback to the first frame size");
+           // Log.i(TAG, "fallback to the first frame size");
             Object size = supportedSizes.get(0);
             calcWidth = accessor.getWidth(size);
             calcHeight = accessor.getHeight(size);

@@ -19,176 +19,68 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import static org.opencv.imgproc.Imgproc.boundingRect;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 
 public class CameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     private JavaCameraView javaCameraView;
-
-    private Rect objectBoundingRectangle  = new Rect(0,0,0,0);
-    private Rect objectBoundingRectangle2 = new Rect(0,0,0,0);
-
-    private class Box {
-        Rect rectangle;
-        Thread thread;
-
-        public Box(Rect r, Thread t){
-            this.rectangle = r;
-            this.thread = t;
-        }
-    }
-
+    private LoopBox loopBox;
     private Box[] boxes = new Box[9];
-
-    private int BOXWIDTH = 0;
-    private int BOXHEIGHT = 0;
-    private int frameWidth = 0;
-    private int frameHeight = 0;
-
     private SoundPlayer soundPlayer;
-
-    private Mat frame1, blurred, hsv, mask;
-
+    private Mat frame1;
     private final Scalar WHITE      = new Scalar( 255,255,255,0 );
-    private final Scalar LIGHTGREEN = new Scalar( 29, 86, 6, 0 );
-    private final Scalar DARKGREEN  = new Scalar( 64, 255, 255, 0 );
-
+    private final Scalar BLUE = new Scalar( 0,0,255 );
+    private final Scalar GREEN = new Scalar( 0,255,0 );
+    private final Scalar RED = new Scalar( 255,0,0 );
     private CameraActivity camAct = this;
+    private Search searchThread;
 
-    private class Search implements Runnable {
+    class LoopRunnable implements Runnable {
 
-        LinkedBlockingQueue<Mat> queue = new LinkedBlockingQueue<Mat>();
-        Point currentLocation = new Point(-1, -1);
-        Point currentLocation2 = new Point(-1, -1);
+        int musicTrack;
+        boolean run = false;
 
-        public Search(){
-            new Thread(this).start();
+        public LoopRunnable(int musicTrack){
+           this.musicTrack = musicTrack;
         }
 
-        public Point getCurrentLocation(){
-            return currentLocation;
+        synchronized int getMusicTrack (){
+            return musicTrack;
         }
 
-        public Point getSecondLocation(){
-            return currentLocation2;
+        void startRun(){
+            run = true;
         }
 
-
-        public void addFrame(Mat frame){
-            try {
-                queue.put( frame );
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        synchronized boolean isRunning(){
+            return run;
+        }
+        synchronized void stopLoop(){
+            run = false;
         }
 
         @Override
         public void run() {
-            while(true) {
-                // block when que empty
-                Mat frame1 = null;
+            while (isRunning()) {
+                soundPlayer.playSound(musicTrack);
                 try {
-                    // TODO: find better way for this
-                    frame1 = queue.poll(200, TimeUnit.MILLISECONDS);
+                    Thread.currentThread().sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-                if (frame1 != null) {
-                    blurred = frame1.clone();
-                    hsv = new Mat();
-                    mask = new Mat();
-
-                    Imgproc.GaussianBlur(frame1, blurred, new Size(11, 11), 0);
-                    Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_BGR2HSV );
-
-                    Core.inRange( hsv, LIGHTGREEN, DARKGREEN, mask);
-
-                    Imgproc.erode( mask, mask, new Mat() );
-                    Imgproc.dilate( mask, mask, new Mat() );
-
-                    Mat temp = new Mat();
-                    mask.copyTo( temp );
-                    List<MatOfPoint> contours = new ArrayList<>();
-                    Mat heirarchy = new Mat();
-                    Imgproc.findContours( temp, contours, heirarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE ); // all external contours
-
-                    Point coordinates = new Point();
-                    Point coordinates2 = new Point();
-                    if (contours.size() > 1) {
-                        //the largest contour is found at the end of the contours vector
-                        //we will simply assume that the biggest contour is the object we are looking for.
-                        List<Mat> largestContourVec = new ArrayList<>();
-                        largestContourVec.add( contours.get( contours.size() - 1 ) );
-                        largestContourVec.add( contours.get( 0 ) );
-                        //largestContourVec.add( contours.get( contours.size() - 2 ) );
-
-                        //make a bounding rectangle around the largest contour then find its centroid
-                        //this will be the object's final estimated position.
-                        objectBoundingRectangle = boundingRect( largestContourVec.get( 0 ) );
-                        objectBoundingRectangle2 = boundingRect( largestContourVec.get( 1 ) );
-
-                        coordinates.x = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
-                        coordinates.y = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
-
-                        coordinates2.x = objectBoundingRectangle2.x + objectBoundingRectangle2.width / 2;
-                        coordinates2.y = objectBoundingRectangle2.y + objectBoundingRectangle2.height / 2;
-                        // this is just for development purposes
-                        this.currentLocation = coordinates;
-                        this.currentLocation2 = coordinates2;
-
-                    }
-                    // is the object in topbox?
-                    boolean top = boxes[boxes.length - 1].rectangle.contains( coordinates );
-                    boolean top2 = boxes[boxes.length - 1].rectangle.contains( coordinates2 );
-                    if (coordinates.y < BOXWIDTH || coordinates.y > ( frameHeight - BOXWIDTH ) || coordinates2.y < BOXWIDTH || coordinates2.y > ( frameHeight - BOXWIDTH ) || top || top2 ){
-                        for (int i = 0; i < boxes.length; i++) {
-                            Thread t = boxes[i].thread;
-                            Rect r = boxes[i].rectangle;
-                            if (r.contains( coordinates ) || r.contains( coordinates2 ) ) {
-                                if (t.getState() == Thread.State.NEW) {
-                                    t.start();
-                                } else if (t.getState() != Thread.State.TIMED_WAITING) {
-                                    System.out.println( "STARTING THREAD: " + (i + 1) );
-                                    try {
-                                        t.join();
-                                        boxes[i].thread = new Thread( runnable, "box" + (i + 1) );
-                                        boxes[i].thread.start();
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    hsv.release();
-                    blurred.release();
-                    mask.release();
-                    temp.release();
-                    heirarchy.release();
                 }
             }
         }
     }
-
 
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
             for (int i = 0; i < boxes.length; i++){
-                if (Thread.currentThread().getName() == boxes[i].thread.getName()){
-                    soundPlayer.playSound( camAct, i );
+                if ( ( Thread.currentThread().getName() == boxes[i].thread.getName() ) && searchThread.isRunning() ){
+                    soundPlayer.playSound( i );
                 }
             }
             try {
@@ -199,9 +91,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
         }
     };
-
-
-    private Search searchThread = new Search();
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
@@ -235,6 +124,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
         Button btnBack = findViewById( R.id.btnBack );
         btnBack.setOnClickListener( v -> {
+            searchThread.stopLoop();
             soundPlayer.onExit();
             startActivity( new Intent(CameraActivity.this, MainActivity.class));
             finish();
@@ -244,22 +134,22 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        frameHeight = height;
-        frameWidth  = width;
-        BOXHEIGHT = frameHeight / 4;
-        BOXWIDTH = ( int ) Math.ceil( frameWidth / 6 );
+        int BOXHEIGHT = height / 4;
+        int BOXWIDTH = (int) Math.ceil(width / 6);
 
-        boxes[0] = new Box(new Rect(frameWidth - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box1"));
-        boxes[1] = new Box(new Rect(frameWidth - (BOXWIDTH * 4), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box2"));
-        boxes[2] = new Box(new Rect(frameWidth - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box3"));
-        boxes[3] = new Box(new Rect(frameWidth - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box4"));
+        boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box1"), new LoopRunnable(0));
+        boxes[1] = new Box(new Rect(width - (BOXWIDTH * 4), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box2"), new LoopRunnable(1));
+        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box3"), new LoopRunnable(2));
+        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box4"), new LoopRunnable(3));
 
-        boxes[4] = new Box(new Rect(frameWidth - (BOXWIDTH * 5), frameHeight - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box5"));
-        boxes[5] = new Box(new Rect(frameWidth - (BOXWIDTH * 4), frameHeight - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box6"));
-        boxes[6] = new Box(new Rect(frameWidth - (BOXWIDTH * 3), frameHeight - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box7"));
-        boxes[7] = new Box(new Rect(frameWidth - (BOXWIDTH * 2), frameHeight - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box8"));
+        boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box5"), new LoopRunnable(4));
+        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 4), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box6"), new LoopRunnable(5));
+        boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box7"), new LoopRunnable(6));
+        boxes[7] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box8"), new LoopRunnable(7));
 
-        boxes[8] = new Box(new Rect(frameWidth - BOXHEIGHT, (frameHeight/2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH),new Thread(runnable, "box9"));
+        boxes[8] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH),new Thread(runnable, "box9"), new LoopRunnable(8));
+        loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
+        searchThread = new Search(boxes, soundPlayer, loopBox, BOXWIDTH, height, runnable);
     }
 
     @Override
@@ -267,25 +157,36 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // read first frame
         frame1 = inputFrame.rgba();
         // Add the current frame to queue in search for object thread
-        searchThread.addFrame(frame1);
-
+        if (frame1 != null) {
+            searchThread.addFrame(frame1.clone());
+        }
         // draw our sensor locations, this will be removed, we do not want to draw on every frame.
         for (Box box : boxes){
-            Imgproc.rectangle(frame1, box.rectangle, WHITE);
+            if ( box.loop.isRunning() ){
+                Imgproc.rectangle(frame1, box.rectangle, BLUE);
+            } else {
+                Imgproc.rectangle(frame1, box.rectangle, WHITE);
+            }
         }
-        // For development purposes we draw a circle around the tracked object
+
+        if (loopBox.isPressed()) {
+            Imgproc.rectangle(frame1, loopBox.rectangle, GREEN);
+        } else {
+            Imgproc.rectangle(frame1, loopBox.rectangle, RED);
+        }
         Point coordinate = searchThread.getCurrentLocation();
         Point coordinate2 = searchThread.getSecondLocation();
+        // For development purposes we draw a circle around the tracked object
         Imgproc.circle( frame1, coordinate, 20, WHITE );
         Imgproc.circle( frame1, coordinate2, 20, WHITE );
+
+        // make the image not mirrored
+        Core.flip(frame1, frame1, 1);
         return frame1;
     }
 
     public void releaseObjects() {
         frame1.release();
-        mask.release();
-        blurred.release();
-        hsv.release();
     }
 
     @Override
