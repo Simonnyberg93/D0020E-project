@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent selectSound=new Intent(MainActivity.this, soundSelection.class);
-                MainActivity.this.startActivity(selectSound);
+                startActivity(selectSound);
             }
         });
     }

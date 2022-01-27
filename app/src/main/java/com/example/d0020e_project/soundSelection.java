@@ -3,10 +3,12 @@ package com.example.d0020e_project;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Camera;
 import android.os.Bundle;
-import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
 public class soundSelection extends AppCompatActivity {
 
@@ -28,49 +30,33 @@ public class soundSelection extends AppCompatActivity {
         // make sure screen does not go dark
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        Button buttonGuitar = (Button) findViewById(R.id.buttonGuitar);
-        Button buttonDrums = (Button) findViewById(R.id.buttonDrums);
-        Button buttonPiano = (Button) findViewById(R.id.buttonPiano);
-        Button buttonTrumpet = (Button) findViewById(R.id.buttonTrumpet);
+        Button buttonGuitar=(Button)findViewById(R.id.buttonGuitar);
+        Button buttonDrums=(Button)findViewById(R.id.buttonDrums);
+        Button buttonPiano=(Button)findViewById(R.id.buttonPiano);
+        Button buttonTrumpet=(Button)findViewById(R.id.buttonTrumpet);
 
-        buttonGuitar.setOnClickListener(new View.OnClickListener()
-            {
-                public void onClick(View view)
-                {
-                    Intent withGuitar = new Intent(soundSelection.this, CameraActivity.class);
-                    withGuitar.putExtra("SoundProfile", getSounds("Guitar" ));
-                    soundSelection.this.startActivity(withGuitar);
-                }
-            });
-
-        buttonDrums.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                Intent withDrums = new Intent(soundSelection.this, CameraActivity.class);
-                withDrums.putExtra("SoundProfile", getSounds("Drums" ));
-                soundSelection.this.startActivity(withDrums);
-            }
+        buttonGuitar.setOnClickListener( v -> {
+        startActivity( new Intent(soundSelection.this, CameraActivity.class).putExtra("SoundProfile",
+                getSounds("Guitar" )));
+        finish();
         });
 
-        buttonPiano.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                Intent withPiano = new Intent(soundSelection.this, CameraActivity.class);
-                withPiano.putExtra("SoundProfile", getSounds("Guitar" ));
-                soundSelection.this.startActivity(withPiano);
-            }
+        buttonDrums.setOnClickListener( v -> {
+            startActivity( new Intent(soundSelection.this, CameraActivity.class).putExtra("SoundProfile",
+                    getSounds("Drums" )));
+            finish();
         });
 
-        buttonTrumpet.setOnClickListener(new View.OnClickListener()
-        {
-            public void onClick(View view)
-            {
-                Intent withTrumpet = new Intent(soundSelection.this, CameraActivity.class);
-                withTrumpet.putExtra("SoundProfile", getSounds("Guitar" ));
-                soundSelection.this.startActivity(withTrumpet);
-            }
+        buttonPiano.setOnClickListener( v -> {
+            startActivity( new Intent(soundSelection.this, CameraActivity.class).putExtra("SoundProfile",
+                    getSounds("Piano" )));
+            finish();
+        });
+
+        buttonTrumpet.setOnClickListener( v -> {
+            startActivity( new Intent(soundSelection.this, CameraActivity.class).putExtra("SoundProfile",
+                    getSounds("Trumpet" )));
+            finish();
         });
 
     }
