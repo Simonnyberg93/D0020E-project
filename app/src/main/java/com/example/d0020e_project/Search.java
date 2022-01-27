@@ -14,6 +14,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -38,15 +39,6 @@ public class Search implements Runnable {
     private int activeLoops = 0;
     private Runnable runnable;
 
-    private Thread t1;
-    private Thread t2;
-    private Thread t3;
-
-    private Thread[] threads = {t1, t2, t3};
-
-
-
-
     public Search( Box[] b, SoundPlayer s, LoopBox lb, int boxW, int frameH, Runnable r) {
         this.BOXWIDTH = boxW;
         this.frameHeight = frameH;
@@ -64,7 +56,6 @@ public class Search implements Runnable {
     public Point getSecondLocation() {
         return currentLocation2;
     }
-
 
     public void addFrame( Mat frame ) {
         try {
@@ -163,42 +154,23 @@ public class Search implements Runnable {
                         Thread t = boxes[i].thread;
                         Rect r = boxes[i].rectangle;
                         if (r.contains( coordinates ) || r.contains( coordinates2 )) {
-                            System.out.println("Active Loops: " + activeLoops);
+                           // System.out.println("Active Loops: " + activeLoops);
                             if (loopBox.isPressed() ) {
                                 if ( !( boxes[i].loop.isRunning()) && (activeLoops < 3) ) {
                                     boxes[i].loop.startRun();
-                                    for (int j = 0; j < threads.length; j++){
-                                        if ( (threads[j] == null) || (threads[j].getState() == Thread.State.TERMINATED) ){
-                                            boxes[i].loop.startRun();
-                                            threads[j] = new Thread(boxes[i].loop, String.valueOf( i ) );
-                                            threads[j].start();
-                                            increaseActiveloops();
-                                            break;
-                                        } else if (threads[j].getState() != Thread.State.TIMED_WAITING) {
-                                            try {
-                                                threads[j].join();
-                                                boxes[i].loop.startRun();
-                                                threads[j] = new Thread( boxes[i].loop, String.valueOf( i ) );
-                                                threads[j].start();
-                                                increaseActiveloops();
-                                            } catch (InterruptedException e) {
-                                                e.printStackTrace();
-                                            }
-                                            break;
-                                        }
+                                    boxes[i].loop.conditionLatch.countDown();
+                                    if(boxes[i].loop.getState() == Thread.State.NEW){
+                                        boxes[i].loop.start();
+                                        boxes[i].loop.conditionLatch.countDown();
                                     }
+                                    increaseActiveloops();
                                 }
                                 else if ( boxes[i].loop.isRunning() ) {
-                                    for (int z = 0; z < threads.length; z++){
-                                        if (threads[z] != null) {
-                                            if (threads[z].getName() == String.valueOf( i )) {
-                                                decreaseActiveloops();
-                                                boxes[i].loop.stopLoop();
-                                                threads[z] = null;
-                                            }
-                                        }
-                                    }
+                                    boxes[i].loop.stopLoop();
+                                    boxes[i].loop.conditionLatch = new CountDownLatch( 1 );
+                                    decreaseActiveloops();
                                 }
+
                             } else {
                                 if (t.getState() == Thread.State.NEW) {
                                     t.start();
@@ -212,7 +184,6 @@ public class Search implements Runnable {
                                     }
                                 }
                             }
-                            break;
                         }
                     }
                 }
