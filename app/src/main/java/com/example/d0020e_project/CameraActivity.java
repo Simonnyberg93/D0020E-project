@@ -43,21 +43,28 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         int musicTrack;
         boolean run = false;
 
+
         public LoopRunnable(int musicTrack){
-           this.musicTrack = musicTrack;
+            this.musicTrack = musicTrack;
         }
 
         synchronized int getMusicTrack (){
             return musicTrack;
         }
 
+        synchronized void setMusicTrack(int musicTrack){
+            this.musicTrack = musicTrack;
+        }
+
         void startRun(){
+
             run = true;
         }
 
         synchronized boolean isRunning(){
             return run;
         }
+
         synchronized void stopLoop(){
             run = false;
         }
@@ -67,7 +74,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             while (isRunning()) {
                 soundPlayer.playSound(musicTrack);
                 try {
-                    Thread.currentThread().sleep(1000);
+                    Thread.currentThread().sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -156,6 +163,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
+        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
         // Add the current frame to queue in search for object thread
         if (frame1 != null) {
             searchThread.addFrame(frame1.clone());
@@ -182,6 +190,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);
+
         return frame1;
     }
 

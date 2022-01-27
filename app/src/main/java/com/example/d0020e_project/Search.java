@@ -1,6 +1,7 @@
 package com.example.d0020e_project;
 
 import static org.opencv.imgproc.Imgproc.boundingRect;
+import static org.opencv.imgproc.Imgproc.filter2D;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -20,15 +21,15 @@ public class Search implements Runnable {
 
     // TENNISBALL = lower: (70, 100, 100), upper: (103, 255, 255)
     private final Scalar LIGHTGREEN = new Scalar( 70, 100, 100 );
-    private final Scalar DARKGREEN  = new Scalar( 103, 255, 255 );
+    private final Scalar DARKGREEN = new Scalar( 103, 255, 255 );
 
     // Normal green?
     // private final Scalar LIGHTGREEN = new Scalar( 29, 86, 6, 0 );
     // private final Scalar DARKGREEN  = new Scalar( 64, 255, 255, 0 );
 
     private LinkedBlockingQueue<Mat> queue = new LinkedBlockingQueue<Mat>();
-    private Point currentLocation = new Point(-1, -1);
-    private Point currentLocation2 = new Point(-1, -1);
+    private Point currentLocation = new Point( -1, -1 );
+    private Point currentLocation2 = new Point( -1, -1 );
     private Box[] boxes;
     private LoopBox loopBox;
     private boolean run = true;
@@ -37,26 +38,35 @@ public class Search implements Runnable {
     private int activeLoops = 0;
     private Runnable runnable;
 
-    public Search(Box[] b, SoundPlayer s, LoopBox lb, int boxW, int frameH, Runnable r){
+    private Thread t1;
+    private Thread t2;
+    private Thread t3;
+
+    private Thread[] threads = {t1, t2, t3};
+
+
+
+
+    public Search( Box[] b, SoundPlayer s, LoopBox lb, int boxW, int frameH, Runnable r) {
         this.BOXWIDTH = boxW;
         this.frameHeight = frameH;
         this.boxes = b;
         this.soundPlayer = s;
         this.loopBox = lb;
         this.runnable = r;
-        new Thread(this).start();
+        new Thread( this ).start();
     }
 
-    public Point getCurrentLocation(){
+    public Point getCurrentLocation() {
         return currentLocation;
     }
 
-    public Point getSecondLocation(){
+    public Point getSecondLocation() {
         return currentLocation2;
     }
 
 
-    public void addFrame(Mat frame){
+    public void addFrame( Mat frame ) {
         try {
             queue.put( frame );
         } catch (InterruptedException e) {
@@ -64,33 +74,45 @@ public class Search implements Runnable {
         }
     }
 
-    synchronized boolean isRunning(){
+    synchronized boolean isRunning() {
         return run;
     }
-    synchronized void stopLoop(){
+
+    synchronized void stopLoop() {
         run = false;
+    }
+
+    synchronized void increaseActiveloops(){
+        this.activeLoops++;
+    }
+
+    synchronized void decreaseActiveloops(){
+        if (activeLoops > 0){
+            this.activeLoops--;
+        }
+
     }
 
     @Override
     public void run() {
         Mat blurred, hsv, mask;
-        while(isRunning()) {
+        while (isRunning()) {
             // block when que empty
             Mat frame = null;
             try {
                 // TODO: find better way for this
-                frame = queue.poll(200, TimeUnit.MILLISECONDS);
+                frame = queue.poll( 200, TimeUnit.MILLISECONDS );
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if ( frame != null ) {
+            if (frame != null) {
                 blurred = frame.clone();
                 hsv = new Mat();
                 mask = new Mat();
-                Imgproc.GaussianBlur(frame, blurred, new Size(11, 11), 0);
-                Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_BGR2HSV);
+                Imgproc.GaussianBlur( frame, blurred, new Size( 11, 11 ), 0 );
+                Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_BGR2HSV );
 
-                Core.inRange( hsv, LIGHTGREEN, DARKGREEN, mask);
+                Core.inRange( hsv, LIGHTGREEN, DARKGREEN, mask );
 
                 Imgproc.erode( mask, mask, new Mat() );
                 Imgproc.dilate( mask, mask, new Mat() );
@@ -113,8 +135,8 @@ public class Search implements Runnable {
 
                     //make a bounding rectangle around the largest contour then find its centroid
                     //this will be the object's final estimated position.
-                    Rect objectBoundingRectangle = boundingRect(largestContourVec.get(0));
-                    Rect objectBoundingRectangle2 = boundingRect(largestContourVec.get(1));
+                    Rect objectBoundingRectangle = boundingRect( largestContourVec.get( 0 ) );
+                    Rect objectBoundingRectangle2 = boundingRect( largestContourVec.get( 1 ) );
 
                     coordinates.x = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
                     coordinates.y = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
@@ -132,39 +154,65 @@ public class Search implements Runnable {
                 boolean loop = loopBox.rectangle.contains( coordinates );
                 boolean loop2 = loopBox.rectangle.contains( coordinates2 );
 
-                if (loop || loop2){
+                if (loop || loop2) {
                     loopBox.press();
                 }
 
-                if (coordinates.y < BOXWIDTH || coordinates.y > ( frameHeight - BOXWIDTH ) || coordinates2.y < BOXWIDTH || coordinates2.y > ( frameHeight - BOXWIDTH ) || top || top2 ){
+                if (coordinates.y < BOXWIDTH || coordinates.y > ( frameHeight - BOXWIDTH ) || coordinates2.y < BOXWIDTH || coordinates2.y > ( frameHeight - BOXWIDTH ) || top || top2) {
                     for (int i = 0; i < boxes.length; i++) {
                         Thread t = boxes[i].thread;
                         Rect r = boxes[i].rectangle;
-                        if (r.contains( coordinates ) || r.contains( coordinates2 ) ) {
-
-                            if (loopBox.isPressed()){
-                                if ( !(boxes[i].loop.isRunning()) ) {
+                        if (r.contains( coordinates ) || r.contains( coordinates2 )) {
+                            System.out.println("Active Loops: " + activeLoops);
+                            if (loopBox.isPressed() ) {
+                                if ( !( boxes[i].loop.isRunning()) && (activeLoops < 3) ) {
                                     boxes[i].loop.startRun();
-                                    new Thread(boxes[i].loop).start();
-                                    //increaseActiveLoops();
-                                } else {
-                                    boxes[i].loop.stopLoop();
-                                    //decreaseActiveLoops();
+                                    for (int j = 0; j < threads.length; j++){
+                                        if ( (threads[j] == null) || (threads[j].getState() == Thread.State.TERMINATED) ){
+                                            boxes[i].loop.startRun();
+                                            threads[j] = new Thread(boxes[i].loop, String.valueOf( i ) );
+                                            threads[j].start();
+                                            increaseActiveloops();
+                                            break;
+                                        } else if (threads[j].getState() != Thread.State.TIMED_WAITING) {
+                                            try {
+                                                threads[j].join();
+                                                boxes[i].loop.startRun();
+                                                threads[j] = new Thread( boxes[i].loop, String.valueOf( i ) );
+                                                threads[j].start();
+                                                increaseActiveloops();
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                            break;
+                                        }
+                                    }
                                 }
-
+                                else if ( boxes[i].loop.isRunning() ) {
+                                    for (int z = 0; z < threads.length; z++){
+                                        if (threads[z] != null) {
+                                            if (threads[z].getName() == String.valueOf( i )) {
+                                                decreaseActiveloops();
+                                                boxes[i].loop.stopLoop();
+                                                threads[z] = null;
+                                            }
+                                        }
+                                    }
+                                }
                             } else {
                                 if (t.getState() == Thread.State.NEW) {
                                     t.start();
                                 } else if (t.getState() != Thread.State.TIMED_WAITING) {
                                     try {
                                         t.join();
-                                        boxes[i].thread = new Thread( runnable, "box" + (i + 1) );
+                                        boxes[i].thread = new Thread( runnable, "box" + ( i + 1 ) );
                                         boxes[i].thread.start();
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
                                 }
                             }
+                            break;
                         }
                     }
                 }
