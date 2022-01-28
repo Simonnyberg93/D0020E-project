@@ -10,20 +10,10 @@ public class LoopBox {
         this.rectangle = r;
     }
 
-    void press(){
-        if (pressing){
-            pressing = false;
-        } else {
-            pressing = true;
-        }
-
-    }
-
-    void release(){
-        pressing = false;
-    }
+    void press() { pressing = !pressing; }
 
     synchronized Boolean isPressed(){
         return pressing;
     }
+
 }

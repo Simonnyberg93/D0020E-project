@@ -1,7 +1,6 @@
 package com.example.d0020e_project;
 
 import static org.opencv.imgproc.Imgproc.boundingRect;
-import static org.opencv.imgproc.Imgproc.filter2D;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -14,7 +13,6 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -34,18 +32,16 @@ public class Search implements Runnable {
     private Box[] boxes;
     private LoopBox loopBox;
     private boolean run = true;
-    private SoundPlayer soundPlayer;
     private final int BOXWIDTH, frameHeight;
     private int activeLoops = 0;
-    private Runnable runnable;
+    /* For now we just use a counter to make loopbutton more user friendly. */
+    private int btnPressCount = 0;
 
-    public Search( Box[] b, SoundPlayer s, LoopBox lb, int boxW, int frameH, Runnable r) {
+    public Search( Box[] b, LoopBox lb, int boxW, int frameH) {
         this.BOXWIDTH = boxW;
         this.frameHeight = frameH;
         this.boxes = b;
-        this.soundPlayer = s;
         this.loopBox = lb;
-        this.runnable = r;
         new Thread( this ).start();
     }
 
@@ -103,8 +99,8 @@ public class Search implements Runnable {
                 Imgproc.GaussianBlur( frame, blurred, new Size( 11, 11 ), 0 );
                 Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_BGR2HSV );
 
+                /* The main functions to track colour object. */
                 Core.inRange( hsv, LIGHTGREEN, DARKGREEN, mask );
-
                 Imgproc.erode( mask, mask, new Mat() );
                 Imgproc.dilate( mask, mask, new Mat() );
 
@@ -126,63 +122,61 @@ public class Search implements Runnable {
 
                     //make a bounding rectangle around the largest contour then find its centroid
                     //this will be the object's final estimated position.
-                    Rect objectBoundingRectangle = boundingRect( largestContourVec.get( 0 ) );
-                    Rect objectBoundingRectangle2 = boundingRect( largestContourVec.get( 1 ) );
+                    coordinates = boundingRect( largestContourVec.get( 0 ) ).middle();
+                    coordinates2 = boundingRect( largestContourVec.get( 1 ) ).middle();
 
-                    coordinates.x = objectBoundingRectangle.x + objectBoundingRectangle.width / 2;
-                    coordinates.y = objectBoundingRectangle.y + objectBoundingRectangle.height / 2;
-
-                    coordinates2.x = objectBoundingRectangle2.x + objectBoundingRectangle2.width / 2;
-                    coordinates2.y = objectBoundingRectangle2.y + objectBoundingRectangle2.height / 2;
                     // this is just for development purposes
                     this.currentLocation = coordinates;
                     this.currentLocation2 = coordinates2;
                 }
-                // is the object in topbox?
+                // is an object in topbox?
                 boolean top = boxes[boxes.length - 1].rectangle.contains( coordinates );
                 boolean top2 = boxes[boxes.length - 1].rectangle.contains( coordinates2 );
 
                 boolean loop = loopBox.rectangle.contains( coordinates );
                 boolean loop2 = loopBox.rectangle.contains( coordinates2 );
 
-                if (loop || loop2) {
-                    loopBox.press();
+                boolean left = (coordinates.y < BOXWIDTH) || coordinates.y > ( frameHeight - BOXWIDTH );
+                boolean rightOrTop = (coordinates2.y < BOXWIDTH) || coordinates2.y > ( frameHeight - BOXWIDTH ) || top || top2;
+
+                if ((loop || loop2)) {
+                    if(btnPressCount == 0) {
+                        loopBox.press();
+                        btnPressCount = 4;
+                    } else {
+                        btnPressCount--;
+                    }
                 }
 
-                if (coordinates.y < BOXWIDTH || coordinates.y > ( frameHeight - BOXWIDTH ) || coordinates2.y < BOXWIDTH || coordinates2.y > ( frameHeight - BOXWIDTH ) || top || top2) {
+                if (left || rightOrTop) {
                     for (int i = 0; i < boxes.length; i++) {
-                        Thread t = boxes[i].thread;
                         Rect r = boxes[i].rectangle;
+                        LoopRunnable l = boxes[i].loop;
                         if (r.contains( coordinates ) || r.contains( coordinates2 )) {
-                           // System.out.println("Active Loops: " + activeLoops);
                             if (loopBox.isPressed() ) {
-                                if ( !( boxes[i].loop.isRunning()) && (activeLoops < 3) ) {
-                                    boxes[i].loop.startRun();
-                                    boxes[i].loop.conditionLatch.countDown();
-                                    if(boxes[i].loop.getState() == Thread.State.NEW){
+                                if ( !( l.isRunning()) && (activeLoops < 3) ) {
+                                    // Start playing sound in loop
+                                    if(l.getState() == Thread.State.NEW){ // if thread is not started yet, do so.
                                         boxes[i].loop.start();
-                                        boxes[i].loop.conditionLatch.countDown();
                                     }
+                                    boxes[i].loop.startLoop();
+                                    boxes[i].loop.unBlock();
                                     increaseActiveloops();
                                 }
-                                else if ( boxes[i].loop.isRunning() ) {
+                                else if ( l.isRunning() ) {
+                                    // Stop playing sound in loop
                                     boxes[i].loop.stopLoop();
-                                    boxes[i].loop.conditionLatch = new CountDownLatch( 1 );
+                                    boxes[i].loop.block();
                                     decreaseActiveloops();
                                 }
 
-                            } else {
-                                if (t.getState() == Thread.State.NEW) {
-                                    t.start();
-                                } else if (t.getState() != Thread.State.TIMED_WAITING) {
-                                    try {
-                                        t.join();
-                                        boxes[i].thread = new Thread( runnable, "box" + ( i + 1 ) );
-                                        boxes[i].thread.start();
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    }
+                            } else if ( ( !l.isRunning() ) && ( !l.isPlaying() ) ) {
+                                // Play sound once
+                                if(l.getState() == Thread.State.NEW){ // if thread is not started yet, do so.
+                                    boxes[i].loop.start();
                                 }
+                                boxes[i].loop.unBlock();
+                                boxes[i].loop.block(); // set block for next iteration
                             }
                         }
                     }

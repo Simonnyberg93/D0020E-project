@@ -39,23 +39,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private Search searchThread;
 
 
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            for (int i = 0; i < boxes.length; i++){
-                if ( ( Thread.currentThread().getName() == boxes[i].thread.getName() ) && searchThread.isRunning() ){
-                    soundPlayer.playSound( i );
-                }
-            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        }
-    };
-
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
         public void onManagerConnected(int status) {
@@ -78,7 +61,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         }
 
         setContentView(R.layout.camera_activity);
-        javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
+        javaCameraView = findViewById(R.id.javaCameraView);
         javaCameraView.setCameraPermissionGranted();
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(CameraActivity.this);
@@ -101,19 +84,19 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         int BOXHEIGHT = height / 4;
         int BOXWIDTH = (int) Math.ceil(width / 6);
 
-        boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box1"), new LoopRunnable(0, soundPlayer));
-        boxes[1] = new Box(new Rect(width - (BOXWIDTH * 4), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box2"), new LoopRunnable(1, soundPlayer));
-        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box3"), new LoopRunnable(2, soundPlayer));
-        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box4"), new LoopRunnable(3, soundPlayer));
+        boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
+        boxes[1] = new Box(new Rect(width - (BOXWIDTH * 4), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
+        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(2, soundPlayer));
+        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(3, soundPlayer));
 
-        boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box5"), new LoopRunnable(4, soundPlayer));
-        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 4), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box6"), new LoopRunnable(5, soundPlayer));
-        boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box7"), new LoopRunnable(6, soundPlayer));
-        boxes[7] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new Thread(runnable, "box8"), new LoopRunnable(7, soundPlayer));
+        boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
+        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 4), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
+        boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
+        boxes[7] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(7, soundPlayer));
 
-        boxes[8] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH),new Thread(runnable, "box9"), new LoopRunnable(8, soundPlayer));
+        boxes[8] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(8, soundPlayer));
         loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
-        searchThread = new Search(boxes, soundPlayer, loopBox, BOXWIDTH, height, runnable);
+        searchThread = new Search(boxes, loopBox, BOXWIDTH, height);
     }
 
     @Override
@@ -122,7 +105,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         frame1 = inputFrame.rgba();
         Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
-        // Add the current frame to queue in search for object thread
+        /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
             searchThread.addFrame(frame1.clone());
         }
@@ -134,7 +117,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 Imgproc.rectangle(frame1, box.rectangle, WHITE);
             }
         }
-
         if (loopBox.isPressed()) {
             Imgproc.rectangle(frame1, loopBox.rectangle, GREEN);
         } else {
@@ -148,7 +130,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);
-
         return frame1;
     }
 
