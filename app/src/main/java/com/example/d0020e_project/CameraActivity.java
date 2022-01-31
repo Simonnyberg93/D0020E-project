@@ -3,12 +3,12 @@ package com.example.d0020e_project;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.widget.Button;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -19,237 +19,123 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import static org.opencv.imgproc.Imgproc.boundingRect;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class CameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     private JavaCameraView javaCameraView;
-
-    private Rect objectBoundingRectangle = new Rect(0,0,0,0);
-
-    private int BOXWIDTH = 0;
-    private int BOXHEIGHT = 0;
-    private int frameWidth = 0;
-    private int frameHeight = 0;
-
+    private LoopBox loopBox;
+    private Box[] boxes = new Box[9];
     private SoundPlayer soundPlayer;
+    private Mat frame1;
+    private final Scalar WHITE      = new Scalar( 255,255,255,0 );
+    private final Scalar BLUE = new Scalar( 0,0,255 );
+    private final Scalar GREEN = new Scalar( 0,255,0 );
+    private final Scalar RED = new Scalar( 255,0,0 );
+    private CameraActivity camAct = this;
+    private Search searchThread;
 
-    private int theFirstObject[] = {0,0};
-
-    private boolean debugMode = false;
-    private boolean trackingEnable = true;
-
-    private Mat frame1, frame2, grayImage1, grayImage2, differenceImage, thresholdImage;
-    private CameraBridgeViewBase.CvCameraViewFrame prevFrame;
-
-    private final int SENSITIVITY_VALUE = 50;
-    private final int BLUR_SIZE = 30;
-    private final Scalar WHITE = new Scalar( 255,255,255,0 );
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
-            @Override
-            public void onManagerConnected(int status) {
-                if (status == BaseLoaderCallback.SUCCESS) {
-                    javaCameraView.enableView();
-                } else {
-                    super.onManagerConnected( status );
-                }
-            }
-        };
-
         @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            //Might need this in order to ask for camera permissions
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                    == PackageManager.PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, 200);
+        public void onManagerConnected(int status) {
+            if (status == BaseLoaderCallback.SUCCESS) {
+                javaCameraView.enableView();
+            } else {
+                super.onManagerConnected( status );
             }
-
-            setContentView(R.layout.camera_activity);
-            javaCameraView = (JavaCameraView) findViewById(R.id.javaCameraView);
-            javaCameraView.setCameraPermissionGranted();
-            javaCameraView.setVisibility(SurfaceView.VISIBLE);
-            javaCameraView.setCvCameraViewListener(CameraActivity.this);
-            soundPlayer = new SoundPlayer( this, ( int[] ) getIntent().getSerializableExtra( "SoundProfile" ) );
-
-            getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-            Button btnBack = findViewById( R.id.btnBack );
-            btnBack.setOnClickListener( v -> {
-                soundPlayer.onExit();
-                startActivity( new Intent(CameraActivity.this, MainActivity.class));
-                finish();
-            } );
-
-            Button btnDebug = findViewById( R.id.btnDebug );
-            btnDebug.setOnClickListener( v -> {
-                if (this.debugMode){this.debugMode = false;} else {this.debugMode = true;}
-            } );
         }
+    };
 
     @Override
-    public void onCameraViewStarted(int width, int height) {
-        frameHeight = height;
-        frameWidth  = width;
-        BOXHEIGHT = frameHeight / 4;
-        BOXWIDTH = ( int ) Math.ceil( frameWidth / 6 );
-        frame1 = new Mat();
-        frame2 = new Mat();
-        grayImage1 = new Mat();
-        grayImage2 = new Mat();
-        differenceImage = new Mat();
-        thresholdImage = new Mat();
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //Might need this in order to ask for camera permissions
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, 200);
+        }
+
+        setContentView(R.layout.camera_activity);
+        javaCameraView = findViewById(R.id.javaCameraView);
+        javaCameraView.setCameraPermissionGranted();
+        javaCameraView.setVisibility(SurfaceView.VISIBLE);
+        javaCameraView.setCvCameraViewListener(CameraActivity.this);
+        soundPlayer = new SoundPlayer( this, ( int[] ) getIntent().getSerializableExtra( "SoundProfile" ) );
+
+        getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        Button btnBack = findViewById( R.id.btnBack );
+        btnBack.setOnClickListener( v -> {
+            searchThread.stopLoop();
+            soundPlayer.onExit();
+            startActivity( new Intent(CameraActivity.this, MainActivity.class));
+            finish();
+        } );
 
     }
 
-    public Mat searchForMovement(Mat thresholdImage, Mat camerafeed){
-        Mat temp = new Mat();
-        thresholdImage.copyTo( temp );
-        List<MatOfPoint> contours = new ArrayList<>();
-        Mat heirarchy = new Mat();
-        //Imgproc.findContours( temp, contours, heirarchy, Imgproc.RETR_CCOMP   , Imgproc.CHAIN_APPROX_SIMPLE ); // retrieves all contours
-        Imgproc.findContours( temp, contours, heirarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE ); // all external contours
+    @Override
+    public void onCameraViewStarted(int width, int height) {
+        int BOXHEIGHT = height / 4;
+        int BOXWIDTH = (int) Math.ceil(width / 6);
 
-        if (contours.size() > 0) {
-            //the largest contour is found at the end of the contours vector
-            //we will simply assume that the biggest contour is the object we are looking for.
-            List<Mat> largestContourVec = new ArrayList<>();
-            largestContourVec.add( contours.get( contours.size() - 1 ) );
-            //largestContourVec.add( contours.get( contours.size() - 2 ) );
+        boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
+        boxes[1] = new Box(new Rect(width - (BOXWIDTH * 4), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
+        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(2, soundPlayer));
+        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(3, soundPlayer));
 
-            //make a bounding rectangle around the largest contour then find its centroid
-            //this will be the object's final estimated position.
-            objectBoundingRectangle = boundingRect(largestContourVec.get( 0 ));
-            //objectBoundingRectangle2 = boundingRect( largestContourVec.get( 1 ) );
+        boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
+        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 4), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
+        boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
+        boxes[7] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(7, soundPlayer));
 
-            int xpos = objectBoundingRectangle.x+objectBoundingRectangle.width/2;
-            int ypos = objectBoundingRectangle.y+objectBoundingRectangle.height/2;
-
-            //int x1 = objectBoundingRectangle2.x+objectBoundingRectangle2.width/2;
-            //int y1 = objectBoundingRectangle2.y+objectBoundingRectangle2.height/2;
-
-            //update the objects positions by changing the 'theObject' array values
-            theFirstObject[0] = xpos;
-            theFirstObject[1] = ypos;
-
-            //theSecondObject[0] = x1;
-            //theSecondObject[1] = y1;
-        }
-        //make some temp x and y variables so we dont have to type out so much
-        int x = theFirstObject[0];
-        int y = theFirstObject[1];
-
-        //int x1 = theSecondObject[0];
-        //int y1 = theSecondObject[1];
-        if (x != -1 && y != -1){
-            if(y < BOXWIDTH){
-                // left
-                if (x > BOXWIDTH && x < BOXWIDTH * 2){
-
-                    soundPlayer.playSound( this, 0 );
-                } else if (x > BOXWIDTH*2 && x < BOXWIDTH*3){
-                    soundPlayer.playSound( this,1 );
-                }else if (x > BOXWIDTH*3 && x < BOXWIDTH*4){
-                    soundPlayer.playSound( this,2 );
-                }else if (x > BOXWIDTH*4 && x < BOXWIDTH*5){
-                    soundPlayer.playSound( this,3 );
-                }
-
-            } else if (y > (frameHeight - BOXWIDTH)){
-                // right
-                if (x > BOXWIDTH && x < BOXWIDTH * 2){
-                    soundPlayer.playSound( this,4 );
-                } else if (x > BOXWIDTH*2 && x < BOXWIDTH*3){
-                    soundPlayer.playSound( this,5 );
-                }else if (x > BOXWIDTH*3 && x < BOXWIDTH*4){
-                    soundPlayer.playSound( this,6 );
-                }else if (x > BOXWIDTH*4 && x < BOXWIDTH*5){
-                    soundPlayer.playSound( this,7 );
-                }
-            } else if(y > (frameHeight / 2) - (BOXWIDTH / 2) && y < (frameHeight / 2) + (BOXWIDTH / 2) && x > (frameHeight - BOXHEIGHT)) {
-                // top box
-                soundPlayer.playSound( this,8 );
-            }
-        }
-
-        theFirstObject[0] = -1;
-        theFirstObject[1] = -1;
-        return camerafeed;
+        boxes[8] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(8, soundPlayer));
+        loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
+        searchThread = new Search(boxes, loopBox, BOXWIDTH, height);
     }
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
-        // convert frame1 to grayscale
-        Imgproc.cvtColor( frame1, grayImage1, Imgproc.COLOR_BGR2GRAY );
-        if (prevFrame == null){
-            prevFrame = inputFrame;
-            return frame1;
+        // use when testing on (some) emulator's.
+        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
+
+        /* Add the current frame to queue in search for object thread */
+        if (frame1 != null) {
+            searchThread.addFrame(frame1.clone());
         }
-        // copy second frame
-        frame2 = prevFrame.rgba();
-        Imgproc.cvtColor( frame2, grayImage2 , Imgproc.COLOR_BGR2GRAY);
-
-        // preform frame differencing with the sequential images. This will output an
-        // "intensity image" do not confuse this with a threshold image, we will need
-        // to perform thresholding afterwars.
-        Core.absdiff( grayImage1, grayImage2, differenceImage );
-        // threshold intensity image at a given sensitivity value
-        Imgproc.threshold( differenceImage, thresholdImage, SENSITIVITY_VALUE, 255, Imgproc.THRESH_BINARY );
-        // blur image to get rid of the noise, this will output an "Intensity image".
-        Imgproc.blur(thresholdImage, thresholdImage, new Size(BLUR_SIZE, BLUR_SIZE) );
-        Imgproc.threshold( thresholdImage, thresholdImage, SENSITIVITY_VALUE, 255, Imgproc.THRESH_BINARY );
-
-        // draw our sensor locations
-        // left
-        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 5),0,BOXWIDTH,BOXHEIGHT), WHITE );
-        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 4),0,BOXWIDTH,BOXHEIGHT), WHITE );
-        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 3),0,BOXWIDTH,BOXHEIGHT), WHITE );
-        Imgproc.rectangle( frame1, new Rect(frameWidth - (BOXWIDTH * 2),0,BOXWIDTH,BOXHEIGHT), WHITE );
-        // right
-        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 5), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
-        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 4), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
-        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 3), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
-        Imgproc.rectangle( frame1, new Rect( frameWidth - (BOXWIDTH * 2), frameHeight - BOXWIDTH, BOXWIDTH,BOXHEIGHT), WHITE );
-        // top
-        Imgproc.rectangle( frame1, new Rect(frameWidth - BOXHEIGHT, (frameHeight/2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), WHITE );
-
-
-        if (debugMode == true) {
-            frame1.release();
-            frame2.release();
-            differenceImage.release();
-            return thresholdImage;
+        // draw our sensor locations, this will be removed, we do not want to draw on every frame.
+        for (Box box : boxes){
+            if ( box.loop.isRunning() ){
+                Imgproc.rectangle(frame1, box.rectangle, BLUE);
+            } else {
+                Imgproc.rectangle(frame1, box.rectangle, WHITE);
+            }
         }
-        // if enabled search for contours on our thresholded image
-        if (trackingEnable == true) {
-            return searchForMovement( thresholdImage, frame1 );
+        if (loopBox.isPressed()) {
+            Imgproc.rectangle(frame1, loopBox.rectangle, GREEN);
+        } else {
+            Imgproc.rectangle(frame1, loopBox.rectangle, RED);
         }
-        frame2.release();
-        differenceImage.release();
-        thresholdImage.release();
+        Point coordinate = searchThread.getCurrentLocation();
+        Point coordinate2 = searchThread.getSecondLocation();
+        // For development purposes we draw a circle around the tracked object
+        Imgproc.circle( frame1, coordinate, 20, WHITE );
+        Imgproc.circle( frame1, coordinate2, 20, WHITE );
+
+        // make the image not mirrored
+        Core.flip(frame1, frame1, 1);
         return frame1;
     }
 
     public void releaseObjects() {
         frame1.release();
-        frame2.release();
-        grayImage1.release();
-        grayImage2.release();
-        differenceImage.release();
-        thresholdImage.release();
     }
 
     @Override

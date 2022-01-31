@@ -53,6 +53,12 @@ public class Rect {
         return new Point(x, y);
     }
 
+    public Point middle(){
+        int x1 = x + width / 2;
+        int y1 = y + height / 2;
+        return new Point(x1, y1);
+    }
+
     public Point br() {
         return new Point(x + width, y + height);
     }
