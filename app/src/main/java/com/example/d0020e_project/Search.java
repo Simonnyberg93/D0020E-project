@@ -19,12 +19,12 @@ import java.util.concurrent.TimeUnit;
 public class Search implements Runnable {
 
     // TENNISBALL = lower: (70, 100, 100), upper: (103, 255, 255)
-    private final Scalar LIGHTGREEN = new Scalar( 70, 100, 100 );
-    private final Scalar DARKGREEN = new Scalar( 103, 255, 255 );
+    //private final Scalar LIGHTGREEN = new Scalar( 70, 100, 100 );
+    //private final Scalar DARKGREEN = new Scalar( 103, 255, 255 );
 
     // Normal green?
-    // private final Scalar LIGHTGREEN = new Scalar( 29, 86, 6, 0 );
-    // private final Scalar DARKGREEN  = new Scalar( 64, 255, 255, 0 );
+     private final Scalar LIGHTGREEN = new Scalar( 29, 86, 6, 0 );
+     private final Scalar DARKGREEN  = new Scalar( 64, 255, 255, 0 );
 
     private LinkedBlockingQueue<Mat> queue = new LinkedBlockingQueue<Mat>();
     private Point currentLocation = new Point( -1, -1 );

@@ -103,7 +103,8 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
-        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
+        // use when testing on (some) emulator's.
+        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
