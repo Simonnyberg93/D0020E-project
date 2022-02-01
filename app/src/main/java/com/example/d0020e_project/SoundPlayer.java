@@ -10,7 +10,7 @@ public class SoundPlayer {
     public SoundPool soundPool;
     private CameraActivity camact;
     int[] sounds;
-    int sound0, sound1,sound2,sound3,sound4,sound5,sound6,sound7,sound8;
+    int sound0, sound1,sound2,sound3,sound4,sound5,sound6;
 
     public SoundPlayer( CameraActivity c, int[] soundProfile ) {
         this.camact = c;
@@ -34,8 +34,6 @@ public class SoundPlayer {
         sound4 = soundPool.load( camact,  sounds[4], 1);
         sound5 = soundPool.load( camact,  sounds[5], 1);
         sound6 = soundPool.load( camact,  sounds[6], 1);
-        sound7 = soundPool.load( camact,  sounds[7], 1);
-        sound8 = soundPool.load( camact,  sounds[8], 1);
     }
 
     public void onExit(){
@@ -69,12 +67,6 @@ public class SoundPlayer {
                 break;
             case 6:
                 soundPool.play( sound6, 1, 1, 0, 0, 1 );
-                break;
-            case 7:
-                soundPool.play( sound7, 1, 1, 0, 0, 1 );
-                break;
-            case 8:
-                soundPool.play( sound8, 1, 1, 0, 0, 1 );
                 break;
             default:
                 break;

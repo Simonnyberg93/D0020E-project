@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     public int[] getSounds(String profile) {
         switch (profile){
             case "Drums":
-                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
+                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
             default:
                 // TODO insert different sound profile
                 return new int[] {0};

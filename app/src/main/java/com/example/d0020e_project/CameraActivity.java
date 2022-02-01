@@ -3,11 +3,13 @@ package com.example.d0020e_project;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -28,7 +30,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     private JavaCameraView javaCameraView;
     private LoopBox loopBox;
-    private Box[] boxes = new Box[9];
+    private Box[] boxes = new Box[7];
     private SoundPlayer soundPlayer;
     private Mat frame1;
     private final Scalar WHITE      = new Scalar( 255,255,255,0 );
@@ -37,7 +39,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private final Scalar RED = new Scalar( 255,0,0 );
     private CameraActivity camAct = this;
     private Search searchThread;
-
+    ImageView box1View;
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
@@ -70,6 +72,8 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Button btnBack = findViewById( R.id.btnBack );
+        box1View = findViewById( R.id.imageView1 );
+
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
             soundPlayer.onExit();
@@ -85,26 +89,30 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         int BOXWIDTH = (int) Math.ceil(width / 6);
 
         boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
-        boxes[1] = new Box(new Rect(width - (BOXWIDTH * 4), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
-        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(2, soundPlayer));
-        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(3, soundPlayer));
+        boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2 , 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
+       // boxes[2] = new Box(new Rect(width - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(2, soundPlayer));
+        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(3, soundPlayer));
 
-        boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
-        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 4), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
-        boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
-        boxes[7] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(7, soundPlayer));
+        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
+        boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
+       // boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
+        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(7, soundPlayer));
 
-        boxes[8] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(8, soundPlayer));
+        box1View.setX( 0f );
+        box1View.setY( (width - (BOXWIDTH * 5)) + 120 );
+
+        boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(8, soundPlayer));
         loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
         searchThread = new Search(boxes, loopBox, BOXWIDTH, height);
     }
+
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
         // use when testing on (some) emulator's.
-        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
+        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
@@ -135,7 +143,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     }
 
     public void releaseObjects() {
-        frame1.release();
+        //frame1.release();
     }
 
     @Override
