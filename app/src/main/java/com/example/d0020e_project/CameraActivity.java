@@ -73,7 +73,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
             soundPlayer.onExit();
-            startActivity( new Intent(CameraActivity.this, MainActivity.class));
+            startActivity( new Intent(CameraActivity.this, soundSelection.class));
             finish();
         } );
 
