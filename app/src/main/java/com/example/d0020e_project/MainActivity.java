@@ -1,27 +1,36 @@
 package com.example.d0020e_project;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
+import java.util.HashMap;
+
 
 public class MainActivity extends AppCompatActivity {
 
-    public int[] getSounds(String profile) {
-        switch (profile){
+
+    public HashMap<Integer, Integer> getSoundProfile(String s) {
+        HashMap<Integer, Integer> profile = new HashMap<>();
+        switch (s) {
             case "Drums":
-                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
+                profile.put( R.raw.drumhihat, R.drawable.drumhihat );
+                profile.put( R.raw.drumkick, R.drawable.drumkick );
+                profile.put( R.raw.drumkick2, R.drawable.drumkick );
+                profile.put( R.raw.drumshorthat, R.drawable.drumhihat );
+                profile.put( R.raw.drumsnare1, R.drawable.drumsnare );
+                profile.put( R.raw.drumsnare3, R.drawable.drumsnare );
+                profile.put( R.raw.drumsnare2, R.drawable.drumsnare );
+                break;
             default:
-                // TODO insert different sound profile
-                return new int[] {0};
+                break;
         }
+        return profile;
     }
 
     @Override
@@ -40,8 +49,9 @@ public class MainActivity extends AppCompatActivity {
         Button camBtn = findViewById(R.id.cameraBtn);
         camBtn.setOnClickListener( v -> {
 
-            startActivity( new Intent(MainActivity.this, CameraActivity.class).putExtra("SoundProfile",
-                    getSounds( (String) soundProfileDropdown.getSelectedItem())));
+            startActivity( new Intent(MainActivity.this, CameraActivity.class)
+                    .putExtra("SoundProfile",
+                    getSoundProfile( (String) soundProfileDropdown.getSelectedItem() )));
             finish();
         });
     }
