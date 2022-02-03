@@ -37,12 +37,15 @@ public class Search implements Runnable {
     /* For now we just use a counter to make loopbutton more user friendly. */
     private int btnPressCount = 0;
 
-    public Search( Box[] b, LoopBox lb, int boxW, int frameH) {
+    private CameraActivity camAct;
+
+    public Search( Box[] b, LoopBox lb, int boxW, int frameH, CameraActivity camAct) {
         this.BOXWIDTH = boxW;
         this.frameHeight = frameH;
         this.boxes = b;
         this.loopBox = lb;
         new Thread( this ).start();
+        this.camAct = camAct;
     }
 
     public Point getCurrentLocation() {
@@ -143,6 +146,7 @@ public class Search implements Runnable {
                     if(btnPressCount == 0) {
                         loopBox.press();
                         btnPressCount = 4;
+                        camAct.updateLoopIcon();
                     } else {
                         btnPressCount--;
                     }
@@ -162,12 +166,15 @@ public class Search implements Runnable {
                                     boxes[i].loop.startLoop();
                                     boxes[i].loop.unBlock();
                                     increaseActiveloops();
+                                    camAct.updateIcon(i);
+
                                 }
                                 else if ( l.isRunning() ) {
                                     // Stop playing sound in loop
                                     boxes[i].loop.stopLoop();
                                     boxes[i].loop.block();
                                     decreaseActiveloops();
+                                    camAct.updateIcon(i);
                                 }
 
                             } else if ( ( !l.isRunning() ) && ( !l.isPlaying() ) ) {
