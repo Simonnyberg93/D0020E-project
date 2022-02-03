@@ -4,9 +4,11 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -40,6 +42,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private CameraActivity camAct = this;
     private Search searchThread;
     ImageView box1View;
+    ImageView box2View;
+    ImageView loopIcon;
+    int loopColor = Color.parseColor("#99ffbb");
+    int loopIconOn = Color.parseColor("#33cc33");
+    int loopIconOff = Color.parseColor("#ff3300");
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
@@ -73,6 +80,9 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
         Button btnBack = findViewById( R.id.btnBack );
         box1View = findViewById( R.id.imageView1 );
+        box2View = findViewById(R.id.cymbal);
+        loopIcon = findViewById(R.id.loopIcon);
+
 
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
@@ -91,19 +101,32 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
         boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2 , 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
        // boxes[2] = new Box(new Rect(width - (BOXWIDTH * 3), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(2, soundPlayer));
-        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(3, soundPlayer));
+        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer));
 
-        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
-        boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
+        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer));
+        boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
        // boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
-        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(7, soundPlayer));
+        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
 
         box1View.setX( 0f );
         box1View.setY( (width - (BOXWIDTH * 5)) + 120 );
 
-        boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(8, soundPlayer));
+
+        box2View.setX( height / 2 - 50);
+        box2View.setY( 0f );
+
+        loopIcon.setX( height /2 + 20);
+        loopIcon.setY( width + BOXWIDTH);
+
+
+
+
+
+        boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(6, soundPlayer));
         loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
-        searchThread = new Search(boxes, loopBox, BOXWIDTH, height);
+        updateLoopIcon();
+        searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this);
+
     }
 
 
@@ -112,7 +135,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // read first frame
         frame1 = inputFrame.rgba();
         // use when testing on (some) emulator's.
-        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
+        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
@@ -120,17 +143,10 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         }
         // draw our sensor locations, this will be removed, we do not want to draw on every frame.
         for (Box box : boxes){
-            if ( box.loop.isRunning() ){
-                Imgproc.rectangle(frame1, box.rectangle, BLUE);
-            } else {
-                Imgproc.rectangle(frame1, box.rectangle, WHITE);
-            }
+            Imgproc.rectangle(frame1, box.rectangle, WHITE);
         }
-        if (loopBox.isPressed()) {
-            Imgproc.rectangle(frame1, loopBox.rectangle, GREEN);
-        } else {
-            Imgproc.rectangle(frame1, loopBox.rectangle, RED);
-        }
+        Imgproc.rectangle(frame1, loopBox.rectangle, WHITE);
+
         Point coordinate = searchThread.getCurrentLocation();
         Point coordinate2 = searchThread.getSecondLocation();
         // For development purposes we draw a circle around the tracked object
@@ -140,6 +156,23 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);
         return frame1;
+    }
+
+    public void updateIcon(int i){
+        if ( boxes[i].loop.isRunning() ){
+            box2View.setColorFilter(loopColor, PorterDuff.Mode.MULTIPLY);
+            //box2View.setImageResource(R.drawable.reload_2);
+        } else {
+            box2View.clearColorFilter();
+        }
+    }
+
+    public void updateLoopIcon(){
+        if (loopBox.isPressed()) {
+            loopIcon.setColorFilter(Color.GREEN);
+        } else {
+            loopIcon.setColorFilter(Color.RED);
+        }
     }
 
     public void releaseObjects() {
