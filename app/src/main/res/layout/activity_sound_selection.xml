@@ -63,6 +63,7 @@
         android:layout_marginTop="25dp"
         android:layout_marginEnd="-24sp"
         android:text="Selfrecorded sound"
+        android:textColor="#2B2B2B"
         android:textSize="26sp" />
 
     <TextView
@@ -76,6 +77,7 @@
         android:layout_marginTop="31dp"
         android:layout_marginEnd="29dp"
         android:text="Select a color to track"
+        android:textColor="#2B2B2B"
         android:textSize="26sp"
         app:layout_constraintBottom_toTopOf="@+id/spinnerColor"
         tools:layout_editor_absoluteX="43dp" />
@@ -146,6 +148,7 @@
         android:layout_marginTop="37dp"
         android:layout_marginEnd="-30dp"
         android:text="Pick a soundprofile!"
+        android:textColor="#2B2B2B"
         android:textSize="26sp" />
 
     <TextView
