@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
@@ -59,6 +60,9 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 == PackageManager.PERMISSION_DENIED) {
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA}, 200);
         }
+
+        requestWindowFeature(Window.FEATURE_NO_TITLE);//will hide the title
+        getSupportActionBar().hide(); //hide the title bar
 
         setContentView(R.layout.camera_activity);
         javaCameraView = findViewById(R.id.javaCameraView);
