@@ -15,17 +15,17 @@ import java.util.HashMap;
 public class MainActivity extends AppCompatActivity {
 
 
-    public HashMap<Integer, Integer> getSoundProfile(String s) {
-        HashMap<Integer, Integer> profile = new HashMap<>();
+    public int[][] getSoundProfile(String s) {
+        int[][] profile = new int[7][2];
         switch (s) {
             case "Drums":
-                profile.put( R.raw.drumhihat, R.drawable.drumhihat );
-                profile.put( R.raw.drumkick, R.drawable.drumkick );
-                profile.put( R.raw.drumkick2, R.drawable.drumkick );
-                profile.put( R.raw.drumshorthat, R.drawable.drumhihat );
-                profile.put( R.raw.drumsnare1, R.drawable.drumsnare );
-                profile.put( R.raw.drumsnare3, R.drawable.drumsnare );
-                profile.put( R.raw.drumsnare2, R.drawable.drumsnare );
+                profile[0] = new int[]{ R.raw.drumhihat, R.drawable.drumhihat };
+                profile[1] = new int[]{ R.raw.drumkick, R.drawable.drumkick };
+                profile[2] = new int[]{ R.raw.drumkick2, R.drawable.drumkick };
+                profile[3] = new int[]{ R.raw.drumshorthat, R.drawable.drumhihat };
+                profile[4] = new int[]{ R.raw.drumsnare1, R.drawable.drumsnare };
+                profile[5] = new int[]{ R.raw.drumsnare3, R.drawable.drumsnare };
+                profile[6] = new int[]{ R.raw.drumsnare2, R.drawable.drumsnare };
                 break;
             default:
                 break;

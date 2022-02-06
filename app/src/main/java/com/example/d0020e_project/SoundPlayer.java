@@ -9,10 +9,10 @@ public class SoundPlayer {
 
     public SoundPool soundPool;
     private CameraActivity camact;
-    Integer[] sounds;
+    int[] sounds;
     int sound0, sound1,sound2,sound3,sound4,sound5,sound6;
 
-    public SoundPlayer( CameraActivity c, Integer[] soundProfile ) {
+    public SoundPlayer( CameraActivity c, int[] soundProfile ) {
         this.camact = c;
         this.sounds = soundProfile;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -27,13 +27,13 @@ public class SoundPlayer {
         } else {
             soundPool = new SoundPool( 9, AudioManager.STREAM_MUSIC, 0 );
         }
-        sound0 = soundPool.load( camact,  sounds[6], 1);
-        sound1 = soundPool.load( camact,  sounds[5], 1);
-        sound2 = soundPool.load( camact,  sounds[4], 1);
+        sound0 = soundPool.load( camact,  sounds[0], 1);
+        sound1 = soundPool.load( camact,  sounds[1], 1);
+        sound2 = soundPool.load( camact,  sounds[2], 1);
         sound3 = soundPool.load( camact,  sounds[3], 1);
-        sound4 = soundPool.load( camact,  sounds[2], 1);
-        sound5 = soundPool.load( camact,  sounds[1], 1);
-        sound6 = soundPool.load( camact,  sounds[0], 1);
+        sound4 = soundPool.load( camact,  sounds[4], 1);
+        sound5 = soundPool.load( camact,  sounds[5], 1);
+        sound6 = soundPool.load( camact,  sounds[6], 1);
     }
 
     public void onExit(){

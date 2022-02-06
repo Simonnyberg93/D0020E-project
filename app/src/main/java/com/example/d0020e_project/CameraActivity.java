@@ -46,11 +46,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private CameraActivity camAct = this;
     private Search searchThread;
 
-    ImageView box1View, box2View, box3View,box4View,box5View,box6View,box7View;
+    private ImageView[] boxViews = new ImageView[boxes.length];
+
+    //ImageView box1View, box2View, box3View,box4View,box5View,box6View,box7View;
     ImageView loopIcon;
-    int loopColor = Color.parseColor("#99ffbb");
-    int loopIconOn = Color.parseColor("#33cc33");
-    int loopIconOff = Color.parseColor("#ff3300");
+    private int loopColor = Color.parseColor("#99ffbb");
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
@@ -82,29 +82,37 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
-        HashMap<Integer, Integer> soundProfile = (HashMap<Integer, Integer> ) getIntent().getSerializableExtra( "SoundProfile" );
-        Integer[] icons = soundProfile.values().toArray( new Integer[0] );
+        int[][] soundProfile = (int[][]) getIntent().getSerializableExtra( "SoundProfile" );
+        int[] icons = new int[soundProfile.length];
+        int[] tracks = new int[soundProfile.length];
+        for(int i = 0; i < soundProfile.length; i++){
+            tracks[i] = soundProfile[i][0];
+            icons[i] = soundProfile[i][1];
+        }
 
-        soundPlayer = new SoundPlayer( this, soundProfile.keySet().toArray( new Integer[0] ) );
+        soundPlayer = new SoundPlayer( this, tracks );
 
         Button btnBack = findViewById( R.id.btnBack );
 
-        box1View = findViewById( R.id.imageView1 );
-        box2View = findViewById( R.id.imageView2 );
-        box3View = findViewById( R.id.imageView3 );
-        box4View = findViewById( R.id.imageView4 );
-        box5View = findViewById( R.id.imageView5 );
-        box6View = findViewById( R.id.imageView6 );
-        box7View = findViewById( R.id.imageView7 );
+        boxViews[0] = findViewById( R.id.imageView1 );
+        boxViews[1] = findViewById( R.id.imageView2 );
+        boxViews[2] = findViewById( R.id.imageView3 );
+        boxViews[3] = findViewById( R.id.imageView4 );
+        boxViews[4] = findViewById( R.id.imageView5 );
+        boxViews[5] = findViewById( R.id.imageView6 );
+        boxViews[6] = findViewById( R.id.imageView7 );
 
-        box1View.setImageResource( icons[6] );
-        box1View.setImageResource( icons[5] );
-        box1View.setImageResource( icons[4] );
-        box1View.setImageResource( icons[3] );
-        box1View.setImageResource( icons[2] );
-        box1View.setImageResource( icons[1] );
-        box1View.setImageResource( icons[0] );
+        for (int i = 0; i < boxViews.length; i++){
+            boxViews[i].setImageResource( icons[i] );
+        }
 
+        /*box1View.setImageResource( icons[0] );
+        box2View.setImageResource( icons[1] );
+        box3View.setImageResource( icons[2] );
+        box4View.setImageResource( icons[3] );
+        box5View.setImageResource( icons[4] );
+        box6View.setImageResource( icons[5] );
+        box7View.setImageResource( icons[6] );*/
 
         loopIcon = findViewById(R.id.loopIcon);
 
@@ -132,34 +140,35 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
        // boxes[6] = new Box(new Rect(width - (BOXWIDTH * 3), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
         boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
 
+        boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(6, soundPlayer));
+
         // left
-        box1View.setX( 0f );
-        box1View.setY( (width - (BOXWIDTH * 5)) + 120 );
+        /*boxViews[0].setX( 0f );
+        boxViews[0].setY( (width - (BOXWIDTH * 5)) + 120 );
 
-        box2View.setX( 0f );
-        box2View.setY( (width - (BOXWIDTH * 4)) + 120 );
+        boxViews[1].setX( 0f );
+        boxViews[1].setY( (width - (BOXWIDTH * 4)) + 120 );
 
-        box3View.setX( 0f );
-        box3View.setY( (width - (BOXWIDTH * 3)) + 120 );
+        boxViews[2].setX( 0f );
+        boxViews[2].setY( (width - (BOXWIDTH * 3)) + 120 );
 
         // right
-        box4View.setX( height - 50);
-        box4View.setY( (width - (BOXWIDTH * 5)) + 120 );
+        boxViews[3].setX( height - 50);
+        boxViews[3].setY( (width - (BOXWIDTH * 5)) + 120 );
 
-        box5View.setX( height - 50);
-        box5View.setY( (width - (BOXWIDTH * 4)) + 120 );
+        boxViews[4].setX( height - 50);
+        boxViews[4].setY( (width - (BOXWIDTH * 4)) + 120 );
 
-        box6View.setX( height - 50);
-        box6View.setY( (width - (BOXWIDTH * 3)) + 120 );
+        boxViews[5].setX( height - 50);
+        boxViews[5].setY( (width - (BOXWIDTH * 3)) + 120 );
 
         // top
-        box7View.setX( height /2 - 50);
-        box7View.setY( 0f );
+        boxViews[6].setX( height /2 - 50);
+        boxViews[6].setY( 0f );*/
 
-        loopIcon.setX( height /2 + 20);
-        loopIcon.setY( width + BOXWIDTH);
+        //loopIcon.setX( height /2 + 20);
+        //loopIcon.setY( width + BOXWIDTH);
 
-        boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(6, soundPlayer));
         loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
         updateLoopIcon();
         searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this);
@@ -172,7 +181,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // read first frame
         frame1 = inputFrame.rgba();
         // use when testing on (some) emulator's.
-        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
+        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
@@ -197,10 +206,9 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     public void updateIcon(int i){
         if ( boxes[i].loop.isRunning() ){
-            box2View.setColorFilter(loopColor, PorterDuff.Mode.MULTIPLY);
-            //box2View.setImageResource(R.drawable.reload_2);
+            boxViews[i].setColorFilter(loopColor, PorterDuff.Mode.MULTIPLY);
         } else {
-            box2View.clearColorFilter();
+            boxViews[i].clearColorFilter();
         }
     }
 
