@@ -25,77 +25,95 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:rotation="0"
-            app:camera_id="back"
+            app:camera_id="front"
             app:layout_constraintBottom_toTopOf="@+id/btnBack"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="1.0" />
 
         <ImageView
             android:id="@+id/imageView1"
             android:layout_width="70dp"
-            android:layout_height="60dp"
-            app:srcCompat="@android:drawable/ic_lock_silent_mode_off"
-            tools:layout_editor_absoluteX="18dp"
-            tools:layout_editor_absoluteY="63dp" />
+            android:layout_height="70dp"
+            android:layout_marginTop="80dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView2"
+            app:srcCompat="?attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="70dp"
-            android:layout_height="60dp"
-            app:srcCompat="@drawable/drum_kit"
-            tools:layout_editor_absoluteX="130dp"
-            tools:layout_editor_absoluteY="23dp" />
+            android:layout_height="70dp"
+            android:layout_marginTop="80dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView3"
+            app:srcCompat="?attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/imageView3"
             android:layout_width="70dp"
-            android:layout_height="60dp"
-            app:srcCompat="@drawable/drum_kit"
-            tools:layout_editor_absoluteX="130dp"
-            tools:layout_editor_absoluteY="23dp" />
+            android:layout_height="70dp"
+            android:layout_marginTop="86dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="?attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/imageView4"
             android:layout_width="70dp"
-            android:layout_height="60dp"
-            app:srcCompat="@drawable/drum_kit"
-            tools:layout_editor_absoluteX="130dp"
-            tools:layout_editor_absoluteY="23dp" />
+            android:layout_height="70dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="80dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView5"
+            app:srcCompat="?attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/imageView5"
             android:layout_width="70dp"
-            android:layout_height="60dp"
-            app:srcCompat="@drawable/drum_kit"
-            tools:layout_editor_absoluteX="130dp"
-            tools:layout_editor_absoluteY="23dp" />
+            android:layout_height="70dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="80dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageView6"
+            app:srcCompat="?attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/imageView6"
             android:layout_width="70dp"
-            android:layout_height="60dp"
-            app:srcCompat="@drawable/drum_kit"
-            tools:layout_editor_absoluteX="130dp"
-            tools:layout_editor_absoluteY="23dp" />
+            android:layout_height="70dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="86dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="?attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/imageView7"
             android:layout_width="70dp"
-            android:layout_height="60dp"
-            app:srcCompat="@drawable/drum_kit"
-            tools:layout_editor_absoluteX="130dp"
-            tools:layout_editor_absoluteY="23dp" />
+            android:layout_height="70dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/javaCameraView"
+            app:srcCompat="?attr/selectableItemBackgroundBorderless" />
 
         <ImageView
             android:id="@+id/loopIcon"
-            android:layout_width="106dp"
-            android:layout_height="90dp"
-            app:srcCompat="@drawable/reload"
-            tools:layout_editor_absoluteX="156dp"
-            tools:layout_editor_absoluteY="579dp" />
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/btnBack"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/reload" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
