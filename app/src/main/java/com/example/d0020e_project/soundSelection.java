@@ -14,20 +14,38 @@ import android.widget.Spinner;
 
 public class soundSelection extends AppCompatActivity {
 
-    public int[] getSounds(String profile) {
-        switch (profile){
+    public int[][] getSounds(String s) {
+        int[][] profile = new int[7][2];
+        switch (s) {
             case "Drums":
-                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
-            case "Bass":
-                return  new int[] {R.raw.bass01, R.raw.bass02, R.raw.bass03, R.raw.bass04, R.raw.bass05, R.raw.bass06, R.raw.bass07, R.raw.bass08, R.raw.bass09};
-            case "Trumpet":
-                return  new int[] {R.raw.trumpeta3, R.raw.trumpeta4, R.raw.trumpetc4, R.raw.trumpetd4, R.raw.trumpete4, R.raw.trumpetf4, R.raw.trumpetg3, R.raw.trumpetg4, R.raw.trumpetg5};
-            case "Piano":
-                return  new int[] {R.raw.pianoa3, R.raw.pianob3, R.raw.pianoc3, R.raw.pianoc6, R.raw.pianod3, R.raw.pianoe3, R.raw.pianof3, R.raw.pianog4, R.raw.pianog5};
+                profile[0] = new int[]{ R.raw.drumhihat, R.drawable.drumhihat };
+                profile[1] = new int[]{ R.raw.drumkick, R.drawable.drumkick };
+                profile[2] = new int[]{ R.raw.drumkick2, R.drawable.drumkick };
+                profile[3] = new int[]{ R.raw.drumshorthat, R.drawable.drumhihat };
+                profile[4] = new int[]{ R.raw.drumsnare1, R.drawable.drumsnare };
+                profile[5] = new int[]{ R.raw.drumsnare3, R.drawable.drumsnare };
+                profile[6] = new int[]{ R.raw.drumsnare2, R.drawable.drumsnare };
+                break;
             default:
-                return new int[] {0};
+                break;
         }
+        return profile;
     }
+
+//    public int[] getSounds(String profile) {
+//        switch (profile){
+//            case "Drums":
+//                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
+//            case "Bass":
+//                return  new int[] {R.raw.bass01, R.raw.bass02, R.raw.bass03, R.raw.bass04, R.raw.bass05, R.raw.bass06, R.raw.bass07, R.raw.bass08, R.raw.bass09};
+//            case "Trumpet":
+//                return  new int[] {R.raw.trumpeta3, R.raw.trumpeta4, R.raw.trumpetc4, R.raw.trumpetd4, R.raw.trumpete4, R.raw.trumpetf4, R.raw.trumpetg3, R.raw.trumpetg4, R.raw.trumpetg5};
+//            case "Piano":
+//                return  new int[] {R.raw.pianoa3, R.raw.pianob3, R.raw.pianoc3, R.raw.pianoc6, R.raw.pianod3, R.raw.pianoe3, R.raw.pianof3, R.raw.pianog4, R.raw.pianog5};
+//            default:
+//                return new int[] {0};
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

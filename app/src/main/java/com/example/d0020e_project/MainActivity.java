@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent selectSound=new Intent(MainActivity.this, soundSelection.class);
+                Intent selectSound = new Intent(MainActivity.this, soundSelection.class);
                 startActivity(selectSound);
             }
         });
