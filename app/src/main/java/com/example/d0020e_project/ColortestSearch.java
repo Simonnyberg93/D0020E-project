@@ -2,19 +2,14 @@ package com.example.d0020e_project;
 
 import static org.opencv.imgproc.Imgproc.boundingRect;
 
-import android.content.Intent;
-import android.os.Bundle;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -26,8 +21,8 @@ public class ColortestSearch implements Runnable {
     //private final Scalar LIGHTGREEN = new Scalar( 70, 100, 100 );
     //private final Scalar DARKGREEN = new Scalar( 103, 255, 255 );
     // Normal green?
-    private Scalar LightColor;
-    private Scalar DarkColor;
+    private Scalar upperCR; //upper color range
+    private Scalar lowerCR;
 
     private LinkedBlockingQueue<Mat> queue = new LinkedBlockingQueue<Mat>();
     private Point currentLocation = new Point( -1, -1 );
@@ -36,11 +31,11 @@ public class ColortestSearch implements Runnable {
     private final int BOXWIDTH, frameHeight;
     private int activeLoops = 0;
 
-    public ColortestSearch(int boxW, int frameH, Scalar LC, Scalar DC) {
+    public ColortestSearch(int boxW, int frameH, Scalar lowC, Scalar uppC) {
         this.BOXWIDTH = boxW;
         this.frameHeight = frameH;
-        this.LightColor = LC;
-        this.DarkColor = DC;
+        this.lowerCR = lowC;
+        this.upperCR = uppC;
         new Thread( this ).start();
     }
 
@@ -95,11 +90,10 @@ public class ColortestSearch implements Runnable {
                 hsv = new Mat();
                 mask = new Mat();
                 Imgproc.GaussianBlur( frame, blurred, new Size( 11, 11 ), 0 );
-                Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_BGR2HSV );
+                Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_RGB2HSV );
 
                 /* The main functions to track colour object. */
-                //trackColors(0) == LIGHTColor, trackColors(1) = DARKColor
-                Core.inRange( hsv, DarkColor, LightColor, mask );
+                Core.inRange( hsv, lowerCR, upperCR, mask );   // colormap: HSV
                 Imgproc.erode( mask, mask, new Mat() );
                 Imgproc.dilate( mask, mask, new Mat() );
 

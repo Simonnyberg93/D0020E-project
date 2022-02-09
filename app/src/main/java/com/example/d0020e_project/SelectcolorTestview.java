@@ -21,7 +21,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
@@ -36,8 +35,8 @@ public class SelectcolorTestview extends AppCompatActivity implements CameraBrid
     private final Scalar BLUE = new Scalar( 0,0,255 );
     private final Scalar GREEN = new Scalar( 0,255,0 );
     private final Scalar RED = new Scalar( 255,0,0 );
-    private Scalar LC;
-    private Scalar DC;
+    private Scalar lowerCR;     //lower color-range
+    private Scalar upperCR;     //upper color-range
     private SelectcolorTestview camAct = this;
     private ColortestSearch searchThread;
 
@@ -66,14 +65,14 @@ public class SelectcolorTestview extends AppCompatActivity implements CameraBrid
         requestWindowFeature(Window.FEATURE_NO_TITLE);//will hide the title
         getSupportActionBar().hide(); //hide the title bar
 
-        setContentView(R.layout.camera_activity);
+        setContentView(R.layout.activity_selectcolor_testview);
         javaCameraView = findViewById(R.id.javaCameraView);
         javaCameraView.setCameraPermissionGranted();
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
         javaCameraView.setCvCameraViewListener(SelectcolorTestview.this);
 
-        LC = getLC(getIntent().getStringExtra( "colorKey" ));
-        DC = getDC(getIntent().getStringExtra( "colorKey" ));
+        upperCR = getUpperCR(getIntent().getStringExtra( "colorKey" ));
+        lowerCR = getLowerCR(getIntent().getStringExtra( "colorKey" ));
 
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -89,38 +88,50 @@ public class SelectcolorTestview extends AppCompatActivity implements CameraBrid
     //    private final Scalar LIGHTGREEN = new Scalar(64, 255, 255, 0);
     //    private final Scalar DARKGREEN  = new Scalar(29, 86, 6, 0);
 
-    public Scalar getDC(String colorKey){       //Sätter "lightcolor" variabeln passande till den knapp som klickats.
+    //Set lightcolor and darkcolor to the colors that are chosen in settings activity.
+    public Scalar getLowerCR(String colorKey){       //lower color range
         switch(colorKey){
-            case "Green":
-                return new Scalar(29, 86, 6, 0);
-            case "Blue":
-                return new Scalar(13, 19, 114, 0);
-            case "Orange":
-                return new Scalar(127, 64, 9, 0);
+            case "Green":                               //works good for "normal" green
+                return new Scalar(50, 125, 115);
+            case "Orange":                              //works fine for "neon" orange
+                return new Scalar(1, 140, 70);
+            case "Blue":                                //this is bright blue
+                return new Scalar(90, 195, 90);
+            case "Pink":                                //Works well for neon pink
+                return new Scalar(150, 140, 125);
+            case "Yellow":                              //Good tuning for "yellow" yellow, not optimized for "green" yellow
+                return new Scalar(23, 140, 125);
+            case "Red":                                 //Really difficult to fine tune to "ignore" skin nuances, maybe remove
+                return new Scalar(171, 200, 170);
             default:
-                return new Scalar(255, 255, 255, 0);
+                return new Scalar(100, 170, 125);
         }
     }
 
-    public Scalar getLC(String colorKey){
+    public Scalar getUpperCR(String colorKey){       //upper color range
         switch(colorKey){
-            case"Green":
-                return new Scalar(64, 255, 255, 0);
-            case "Blue":
-                return new Scalar(40, 255, 255, 0);
+            case "Green":
+                return new Scalar(70, 255, 255);
             case "Orange":
-                return new Scalar(255, 205, 190, 0);
+                return new Scalar(13, 255, 255);
+            case "Blue":
+                return new Scalar(127, 255, 255);
+            case "Pink":
+                return new Scalar(170, 215, 255);
+            case "Yellow":
+                return new Scalar(43, 255, 255);
+            case "Red":
+                return new Scalar(179, 255, 255);
             default:
                 return new Scalar(0, 0, 0, 0);
         }
     }
 
-
     @Override
     public void onCameraViewStarted(int width, int height) {
         int BOXHEIGHT = height / 4;
         int BOXWIDTH = (int) Math.ceil(width / 6);
-        searchThread = new ColortestSearch(BOXWIDTH, height, LC, DC);
+        searchThread = new ColortestSearch(BOXWIDTH, height, lowerCR, upperCR);
     }
 
     @Override

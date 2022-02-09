@@ -57,6 +57,22 @@ public class soundSelection extends AppCompatActivity {
         // make sure screen does not go dark
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        //Select color and test color
+        Spinner testColorSelectionSpinner = findViewById( R.id.spinnerColor);
+        String[] testColors = new String [] {"Blue", "Green", "Orange", "Pink", "Yellow", "Red"};
+
+        ArrayAdapter<String> adapterColor = new ArrayAdapter<>(this, R.layout.spinner_selected_item, testColors);
+        adapterColor.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        testColorSelectionSpinner.setAdapter (adapterColor);
+
+        Button colorTestBtn = findViewById(R.id.colorTestBtn);
+        colorTestBtn.setOnClickListener( v -> {
+            startActivity( new Intent(soundSelection.this, SelectcolorTestview.class).putExtra("colorKey",
+                    ( (String) testColorSelectionSpinner.getSelectedItem())));
+            finish();
+        });
+
+        //Soundprofile selection
         Spinner soundProfileDropdown = findViewById( R.id.spinnerSP );
 
         String[] soundprofiles = new String[] {"Drums", "Piano", "Bass", "Trumpet"};
