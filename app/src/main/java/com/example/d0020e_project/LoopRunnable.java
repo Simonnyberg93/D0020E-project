@@ -15,6 +15,10 @@ public class LoopRunnable extends Thread implements Runnable {
         this.soundPlayer = s;
     }
 
+    synchronized void showHit(CameraActivity act, int i){ act.iconHitIndicate( i ); }
+
+    synchronized void hitDone(CameraActivity act, int i){ act.iconHitIndicate( i ); }
+
     synchronized void startLoop() { run = true; }
 
     synchronized boolean isRunning(){

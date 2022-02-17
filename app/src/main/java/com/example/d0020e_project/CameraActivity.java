@@ -42,11 +42,14 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private final Scalar RED = new Scalar( 255,0,0 );
     private CameraActivity camAct = this;
     private Search searchThread;
+    private String instrumentName = "";
 
     private ImageView[] boxViews = new ImageView[boxes.length];
 
     ImageView loopIcon;
     private int loopColor = Color.parseColor("#99ffbb");
+    private int playOnceColor = Color.parseColor( "#ff3399" );
+    private final int BOX_PADDING = 15;
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
@@ -73,7 +76,17 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         requestWindowFeature( Window.FEATURE_NO_TITLE );//will hide the title
         getSupportActionBar().hide(); //hide the title bar
 
-        setContentView(R.layout.camera_activity);
+        instrumentName = getIntent().getAction();
+        switch (instrumentName){
+            case "Drums":
+                break;
+            case "Piano":
+                setContentView( R.layout.camera_activity_piano );
+                break;
+            default:
+                setContentView(R.layout.camera_activity);
+                break;
+        }
         javaCameraView = findViewById(R.id.javaCameraView);
         javaCameraView.setCameraPermissionGranted();
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -88,7 +101,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             tracks[i] = soundProfile[i][0];
             icons[i] = soundProfile[i][1];
         }
-
         soundPlayer = new SoundPlayer( this, tracks );
 
         Button btnBack = findViewById( R.id.btnBack );
@@ -119,19 +131,38 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public void onCameraViewStarted(int width, int height) {
         int BOXHEIGHT = height / 4;
         int BOXWIDTH = (int) Math.ceil(width / 6);
+        switch (instrumentName){
+            case "Drums":
+                // left
+                boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
+                boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer));
+                // right
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer));
+                boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
+                // top
+                boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
 
-        // left
-        boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
-        boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2 , 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
-        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer));
-        // right
-        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer));
-        boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
-        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
-        // top
-        boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(6, soundPlayer));
+                loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
+                break;
+            default:
+                // Upp
+                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH, BOXHEIGHT));
+                boxes[4] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
+                boxes[5] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
+                boxes[6] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
+                // Down
+                boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
+                boxes[1] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
+                boxes[2] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer));
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer));
 
-        loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
+
+
+                break;
+        }
+
         updateLoopIcon();
         searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this);
 
@@ -142,7 +173,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
-
         // use when testing on (some) emulator's.
         Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
@@ -172,6 +202,53 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);
         return frame1;
+    }
+
+
+    public void iconHitIndicate(int i){
+        switch (instrumentName){
+            case "Drums":
+                if ( boxes[i].loop.isPlaying() ){
+                    boxViews[i].setColorFilter(playOnceColor, PorterDuff.Mode.MULTIPLY);
+                } else {
+                    boxViews[i].clearColorFilter();
+                }
+                break;
+            case "Piano":
+                if (boxes[i].loop.isPlaying()){
+                    switch (i){
+                        case 0:
+                            boxViews[i].setImageResource( R.drawable.pianoa );
+                            break;
+                        case 1:
+                            boxViews[i].setImageResource( R.drawable.pianob );
+                            break;
+                        case 2:
+                            boxViews[i].setImageResource( R.drawable.pianoc );
+                            break;
+                        case 3:
+                            boxViews[i].setImageResource( R.drawable.pianod );
+                            break;
+                        case 4:
+                            boxViews[i].setImageResource( R.drawable.pianoe );
+                            break;
+                        case 5:
+                            boxViews[i].setImageResource( R.drawable.pianof );
+                            break;
+                        case 6:
+                            boxViews[i].setImageResource( R.drawable.pianog );
+                            break;
+
+                        default:
+                            break;
+                    }
+                } else {
+                    boxViews[i].setImageResource( R.drawable.orgpiano );
+                }
+                break;
+            default:
+                throw new IllegalStateException( "Unexpected value: " + instrumentName );
+        }
     }
 
     public void updateIcon(int i){

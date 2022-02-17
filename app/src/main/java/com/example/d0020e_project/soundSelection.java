@@ -26,26 +26,20 @@ public class soundSelection extends AppCompatActivity {
                 profile[5] = new int[]{ R.raw.drumsnare3, R.drawable.drumsnare };
                 profile[6] = new int[]{ R.raw.drumsnare2, R.drawable.drumsnare };
                 break;
+            case "Piano":
+                profile[0] = new int[]{ R.raw.pianoa3, R.drawable.pianoa };
+                profile[1] = new int[]{ R.raw.pianob3, R.drawable.pianob };
+                profile[2] = new int[]{ R.raw.pianoc3, R.drawable.pianoc };
+                profile[3] = new int[]{ R.raw.pianod3, R.drawable.pianod };
+                profile[4] = new int[]{ R.raw.pianoe3, R.drawable.pianoe };
+                profile[5] = new int[]{ R.raw.pianof3, R.drawable.pianof };
+                profile[6] = new int[]{ R.raw.pianog4, R.drawable.pianog };
+                break;
             default:
                 break;
         }
         return profile;
     }
-
-//    public int[] getSounds(String profile) {
-//        switch (profile){
-//            case "Drums":
-//                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
-//            case "Bass":
-//                return  new int[] {R.raw.bass01, R.raw.bass02, R.raw.bass03, R.raw.bass04, R.raw.bass05, R.raw.bass06, R.raw.bass07, R.raw.bass08, R.raw.bass09};
-//            case "Trumpet":
-//                return  new int[] {R.raw.trumpeta3, R.raw.trumpeta4, R.raw.trumpetc4, R.raw.trumpetd4, R.raw.trumpete4, R.raw.trumpetf4, R.raw.trumpetg3, R.raw.trumpetg4, R.raw.trumpetg5};
-//            case "Piano":
-//                return  new int[] {R.raw.pianoa3, R.raw.pianob3, R.raw.pianoc3, R.raw.pianoc6, R.raw.pianod3, R.raw.pianoe3, R.raw.pianof3, R.raw.pianog4, R.raw.pianog5};
-//            default:
-//                return new int[] {0};
-//        }
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +62,7 @@ public class soundSelection extends AppCompatActivity {
         camBtn.setOnClickListener( v -> {
 
             startActivity( new Intent(soundSelection.this, CameraActivity.class).putExtra("SoundProfile",
-                    getSounds( (String) soundProfileDropdown.getSelectedItem())));
+                    getSounds( (String) soundProfileDropdown.getSelectedItem())).setAction( (String) soundProfileDropdown.getSelectedItem() ));
             finish();
         });
     }
