@@ -1,0 +1,33 @@
+{
+  "buildFiles": [
+    "D:\\dev2\\D0020E-project\\sdk\\libcxx_helper\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "D:\\program\\SDKs\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+      "-C",
+      "D:\\dev2\\D0020E-project\\sdk\\.cxx\\Debug\\3nw1n263\\armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "D:\\program\\SDKs\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+    "-C",
+    "D:\\dev2\\D0020E-project\\sdk\\.cxx\\Debug\\3nw1n263\\armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "opencv_jni_shared-Debug-armeabi-v7a": {
+      "artifactName": "opencv_jni_shared",
+      "buildCommandComponents": [
+        "D:\\program\\SDKs\\cmake\\3.10.2.4988404\\bin\\ninja.exe",
+        "-C",
+        "D:\\dev2\\D0020E-project\\sdk\\.cxx\\Debug\\3nw1n263\\armeabi-v7a",
+        "opencv_jni_shared"
+      ],
+      "abi": "armeabi-v7a",
+      "output": "D:\\dev2\\D0020E-project\\sdk\\.cxx\\Debug\\3nw1n263\\armeabi-v7a\\libopencv_jni_shared.a",
+      "runtimeFiles": []
+    }
+  }
+}
