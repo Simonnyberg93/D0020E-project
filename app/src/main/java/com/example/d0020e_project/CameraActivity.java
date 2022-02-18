@@ -2,10 +2,14 @@ package com.example.d0020e_project;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.WallpaperManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -14,6 +18,8 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -200,7 +206,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         Imgproc.circle( frame1, coordinate2, 20, WHITE );
 
         // make the image not mirrored
-        Core.flip(frame1, frame1, 1);
+     // Core.flip(frame1, frame1, 1);
         return frame1;
     }
 
@@ -215,36 +221,73 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 }
                 break;
             case "Piano":
-                if (boxes[i].loop.isPlaying()){
-                    switch (i){
-                        case 0:
-                            boxViews[i].setImageResource( R.drawable.pianoa );
-                            break;
-                        case 1:
-                            boxViews[i].setImageResource( R.drawable.pianob );
-                            break;
-                        case 2:
-                            boxViews[i].setImageResource( R.drawable.pianoc );
-                            break;
-                        case 3:
-                            boxViews[i].setImageResource( R.drawable.pianod );
-                            break;
-                        case 4:
-                            boxViews[i].setImageResource( R.drawable.pianoe );
-                            break;
-                        case 5:
-                            boxViews[i].setImageResource( R.drawable.pianof );
-                            break;
-                        case 6:
-                            boxViews[i].setImageResource( R.drawable.pianog );
-                            break;
-
-                        default:
-                            break;
-                    }
-                } else {
-                    boxViews[i].setImageResource( R.drawable.orgpiano );
+                Drawable drawable = boxViews[i].getDrawable();
+                Drawable drawable1 = camAct.getBaseContext().getDrawable(R.drawable.orgpiano);
+                if(drawable.equals(drawable1)){
+                    System.out.println("SUCCESS!!");
                 }
+                int d = boxViews[i].getId();
+                int d1 = 2131230943;
+                switch (i){
+                    case 0:
+
+                        if (d == d1) {
+                            boxViews[i].setImageResource( R.drawable.pianoa );
+                        } else {
+                            boxViews[i].setImageResource( R.drawable.orgpiano );
+                        }
+
+                        break;
+                    case 1:
+
+                        if (d == d1) {
+                            boxViews[i].setImageResource( R.drawable.pianob );
+                        } else {
+                            boxViews[i].setImageResource( R.drawable.orgpiano );
+                        }
+
+                        break;
+                    case 2:
+                        if (d == d1) {
+                            boxViews[i].setImageResource( R.drawable.pianoc );
+                        } else {
+                            boxViews[i].setImageResource( R.drawable.orgpiano );
+                        }
+                        break;
+                    case 3:
+                        if (d == d1) {
+                            boxViews[i].setImageResource( R.drawable.pianod );
+                        } else {
+                            boxViews[i].setImageResource( R.drawable.orgpiano );
+                        }
+                        break;
+                    case 4:
+                        if (d == d1) {
+                            boxViews[i].setImageResource( R.drawable.pianoe );
+                        } else {
+                            boxViews[i].setImageResource( R.drawable.orgpiano );
+                        }
+                        break;
+                    case 5:
+                        if (d == d1) {
+                            boxViews[i].setImageResource( R.drawable.pianof );
+                        } else {
+                            boxViews[i].setImageResource( R.drawable.orgpiano );
+                        }
+                        break;
+                    case 6:
+                        if (d == d1) {
+                            boxViews[i].setImageResource( R.drawable.pianog );
+                        } else {
+                            boxViews[i].setImageResource( R.drawable.orgpiano );
+                        }
+                        break;
+                    default:
+                        break;
+                }
+               // } else {
+                   // boxViews[i].setImageResource( R.drawable.orgpiano );
+               // }
                 break;
             default:
                 throw new IllegalStateException( "Unexpected value: " + instrumentName );

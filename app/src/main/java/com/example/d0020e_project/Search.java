@@ -182,8 +182,8 @@ public class Search implements Runnable {
                                 if(l.getState() == Thread.State.NEW){ // if thread is not started yet, do so.
                                     boxes[i].loop.start();
                                 }
-                                boxes[i].loop.showHit( camAct, i );
                                 boxes[i].loop.unBlock();
+                                boxes[i].loop.showHit( camAct, i );
                                 boxes[i].loop.block(); // set block for next iteration
                                 boxes[i].loop.hitDone( camAct, i );
                             }

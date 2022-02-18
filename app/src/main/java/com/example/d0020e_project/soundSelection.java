@@ -27,13 +27,13 @@ public class soundSelection extends AppCompatActivity {
                 profile[6] = new int[]{ R.raw.drumsnare2, R.drawable.drumsnare };
                 break;
             case "Piano":
-                profile[0] = new int[]{ R.raw.pianoa3, R.drawable.pianoa };
-                profile[1] = new int[]{ R.raw.pianob3, R.drawable.pianob };
-                profile[2] = new int[]{ R.raw.pianoc3, R.drawable.pianoc };
-                profile[3] = new int[]{ R.raw.pianod3, R.drawable.pianod };
-                profile[4] = new int[]{ R.raw.pianoe3, R.drawable.pianoe };
-                profile[5] = new int[]{ R.raw.pianof3, R.drawable.pianof };
-                profile[6] = new int[]{ R.raw.pianog4, R.drawable.pianog };
+                profile[0] = new int[]{ R.raw.pianoa3, R.drawable.orgpiano };
+                profile[1] = new int[]{ R.raw.pianob3, R.drawable.orgpiano };
+                profile[2] = new int[]{ R.raw.pianoc3, R.drawable.orgpiano };
+                profile[3] = new int[]{ R.raw.pianod3, R.drawable.orgpiano };
+                profile[4] = new int[]{ R.raw.pianoe3, R.drawable.orgpiano };
+                profile[5] = new int[]{ R.raw.pianof3, R.drawable.orgpiano };
+                profile[6] = new int[]{ R.raw.pianog4, R.drawable.orgpiano };
                 break;
             default:
                 break;
