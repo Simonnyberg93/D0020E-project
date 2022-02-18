@@ -71,7 +71,6 @@ public class ColortestSearch implements Runnable {
         if (activeLoops > 0){
             this.activeLoops--;
         }
-
     }
 
     public void run() {

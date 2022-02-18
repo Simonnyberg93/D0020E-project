@@ -23,8 +23,8 @@ public class Search implements Runnable {
     //private final Scalar DARKGREEN = new Scalar( 103, 255, 255 );
 
     // Normal green?
-     private final Scalar LIGHTGREEN = new Scalar( 29, 86, 6, 0 );
-     private final Scalar DARKGREEN  = new Scalar( 64, 255, 255, 0 );
+    private Scalar upperCR; //upper color range
+    private Scalar lowerCR;
 
     private LinkedBlockingQueue<Mat> queue = new LinkedBlockingQueue<Mat>();
     private Point currentLocation = new Point( -1, -1 );
@@ -39,13 +39,15 @@ public class Search implements Runnable {
 
     private CameraActivity camAct;
 
-    public Search( Box[] b, LoopBox lb, int boxW, int frameH, CameraActivity camAct) {
+    public Search( Box[] b, LoopBox lb, int boxW, int frameH, CameraActivity camAct, Scalar lowerC, Scalar upperC) {
         this.BOXWIDTH = boxW;
         this.frameHeight = frameH;
         this.boxes = b;
         this.loopBox = lb;
-        new Thread( this ).start();
         this.camAct = camAct;
+        this.lowerCR = lowerC;
+        this.upperCR = upperC;
+        new Thread( this ).start();
     }
 
     public Point getCurrentLocation() {
@@ -100,10 +102,10 @@ public class Search implements Runnable {
                 hsv = new Mat();
                 mask = new Mat();
                 Imgproc.GaussianBlur( frame, blurred, new Size( 11, 11 ), 0 );
-                Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_BGR2HSV );
+                Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_RGB2HSV );
 
                 /* The main functions to track colour object. */
-                Core.inRange( hsv, LIGHTGREEN, DARKGREEN, mask );
+                Core.inRange( hsv, lowerCR, upperCR, mask );
                 Imgproc.erode( mask, mask, new Mat() );
                 Imgproc.dilate( mask, mask, new Mat() );
 

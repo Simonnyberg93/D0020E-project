@@ -81,11 +81,12 @@ public class soundSelection extends AppCompatActivity {
         soundProfileDropdown.setAdapter( adapter );
 
         Button camBtn = findViewById(R.id.continueBtn);
-        camBtn.setOnClickListener( v -> {
+        Intent camActIntent = new Intent(soundSelection.this, CameraActivity.class);
+        camActIntent.putExtra("colorKey", ( (String) testColorSelectionSpinner.getSelectedItem()));
+        camActIntent.putExtra("SoundProfile", getSounds( (String) soundProfileDropdown.getSelectedItem()));
 
-            startActivity( new Intent(soundSelection.this, CameraActivity.class).putExtra("SoundProfile",
-                    getSounds( (String) soundProfileDropdown.getSelectedItem())));
-            finish();
+        camBtn.setOnClickListener( v -> {
+            startActivity(camActIntent);
         });
     }
 }
