@@ -183,9 +183,9 @@ public class Search implements Runnable {
                                     boxes[i].loop.start();
                                 }
                                 boxes[i].loop.unBlock();
-                                boxes[i].loop.showHit( camAct, i );
+                               // boxes[i].loop.showHit( camAct, i );
                                 boxes[i].loop.block(); // set block for next iteration
-                                boxes[i].loop.hitDone( camAct, i );
+                               // boxes[i].loop.hitDone( camAct, i );
                             }
                         }
                     }

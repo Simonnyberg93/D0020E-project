@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:rotation="0"
-            app:camera_id="back"
+            app:camera_id="front"
             app:layout_constraintBottom_toTopOf="@+id/btnBack"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

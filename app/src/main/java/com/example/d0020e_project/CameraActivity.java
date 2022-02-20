@@ -54,8 +54,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     ImageView loopIcon;
     private int loopColor = Color.parseColor("#99ffbb");
-    private int playOnceColor = Color.parseColor( "#ff3399" );
-    private final int BOX_PADDING = 15;
+    private final int BOX_PADDING = 20;
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
@@ -120,6 +119,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         boxViews[6] = findViewById( R.id.imageView7 );
         for (int i = 0; i < boxViews.length; i++){
             boxViews[i].setImageResource( icons[i] );
+            boxViews[i].setTag( R.drawable.orgpiano );
         }
 
         loopIcon = findViewById(R.id.loopIcon);
@@ -149,23 +149,22 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
                 // top
                 boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
-
                 loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
                 break;
-            default:
-                // Upp
-                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH, BOXHEIGHT));
-                boxes[4] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
-                boxes[5] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
-                boxes[6] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
+            case "Piano":
                 // Down
-                boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
-                boxes[1] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
-                boxes[2] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer));
-                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer));
-
-
-
+                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer), R.drawable.pianod);
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer), R.drawable.pianoe);
+                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer), R.drawable.pianof);
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer), R.drawable.pianog);
+                // Upp
+                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer), R.drawable.pianoa);
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer), R.drawable.pianob);
+                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer), R.drawable.pianoc);
+                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH, BOXHEIGHT));
+                break;
+            default:
+                System.out.println("Not yet implemented!");
                 break;
         }
 
@@ -180,7 +179,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // read first frame
         frame1 = inputFrame.rgba();
         // use when testing on (some) emulator's.
-        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
+        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
@@ -199,6 +198,17 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         } else {
             Imgproc.rectangle(frame1, loopBox.rectangle, RED);
         }
+
+        // Draw piano keys
+        if (instrumentName == "Piano") {
+            for (int i = 0; i < boxViews.length; i++) {
+                if (boxes[i].loop.isPlaying()) {
+                    boxViews[i].setImageResource( boxes[i].drawable );
+                } else {
+                    boxViews[i].setImageResource( R.drawable.orgpiano );
+                }
+            }
+        }
         Point coordinate = searchThread.getCurrentLocation();
         Point coordinate2 = searchThread.getSecondLocation();
         // For development purposes we draw a circle around the tracked object
@@ -206,93 +216,92 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         Imgproc.circle( frame1, coordinate2, 20, WHITE );
 
         // make the image not mirrored
-     // Core.flip(frame1, frame1, 1);
+        Core.flip(frame1, frame1, 1);
         return frame1;
     }
 
 
-    public void iconHitIndicate(int i){
-        switch (instrumentName){
-            case "Drums":
-                if ( boxes[i].loop.isPlaying() ){
-                    boxViews[i].setColorFilter(playOnceColor, PorterDuff.Mode.MULTIPLY);
-                } else {
-                    boxViews[i].clearColorFilter();
-                }
-                break;
-            case "Piano":
-                Drawable drawable = boxViews[i].getDrawable();
-                Drawable drawable1 = camAct.getBaseContext().getDrawable(R.drawable.orgpiano);
-                if(drawable.equals(drawable1)){
-                    System.out.println("SUCCESS!!");
-                }
-                int d = boxViews[i].getId();
-                int d1 = 2131230943;
-                switch (i){
-                    case 0:
-
-                        if (d == d1) {
-                            boxViews[i].setImageResource( R.drawable.pianoa );
-                        } else {
-                            boxViews[i].setImageResource( R.drawable.orgpiano );
-                        }
-
-                        break;
-                    case 1:
-
-                        if (d == d1) {
-                            boxViews[i].setImageResource( R.drawable.pianob );
-                        } else {
-                            boxViews[i].setImageResource( R.drawable.orgpiano );
-                        }
-
-                        break;
-                    case 2:
-                        if (d == d1) {
-                            boxViews[i].setImageResource( R.drawable.pianoc );
-                        } else {
-                            boxViews[i].setImageResource( R.drawable.orgpiano );
-                        }
-                        break;
-                    case 3:
-                        if (d == d1) {
-                            boxViews[i].setImageResource( R.drawable.pianod );
-                        } else {
-                            boxViews[i].setImageResource( R.drawable.orgpiano );
-                        }
-                        break;
-                    case 4:
-                        if (d == d1) {
-                            boxViews[i].setImageResource( R.drawable.pianoe );
-                        } else {
-                            boxViews[i].setImageResource( R.drawable.orgpiano );
-                        }
-                        break;
-                    case 5:
-                        if (d == d1) {
-                            boxViews[i].setImageResource( R.drawable.pianof );
-                        } else {
-                            boxViews[i].setImageResource( R.drawable.orgpiano );
-                        }
-                        break;
-                    case 6:
-                        if (d == d1) {
-                            boxViews[i].setImageResource( R.drawable.pianog );
-                        } else {
-                            boxViews[i].setImageResource( R.drawable.orgpiano );
-                        }
-                        break;
-                    default:
-                        break;
-                }
-               // } else {
-                   // boxViews[i].setImageResource( R.drawable.orgpiano );
-               // }
-                break;
-            default:
-                throw new IllegalStateException( "Unexpected value: " + instrumentName );
-        }
-    }
+//    public void iconHitIndicate(int i){
+//        switch (instrumentName){
+//            case "Drums":
+//                if ( boxes[i].loop.isPlaying() ){
+//                    boxViews[i].setColorFilter(playOnceColor, PorterDuff.Mode.MULTIPLY);
+//                } else {
+//                    boxViews[i].clearColorFilter();
+//                }
+//                break;
+//            case "Piano":
+//
+//                if( (int) boxViews[i].getTag() == R.drawable.orgpiano){
+//                    System.out.println("SUCCESS!!");
+//                }
+//                int d = (int) boxViews[i].getTag();
+//                int d1 = R.drawable.orgpiano;
+//                switch (i){
+//                    case 0:
+//
+//                        if (d == d1) {
+//                            boxViews[i].setImageResource( R.drawable.pianoa );
+//                        } else {
+//                            boxViews[i].setImageResource( R.drawable.orgpiano );
+//                        }
+//
+//                        break;
+//                    case 1:
+//
+//                        if (d == d1) {
+//                            boxViews[i].setImageResource( R.drawable.pianob );
+//                        } else {
+//                            boxViews[i].setImageResource( R.drawable.orgpiano );
+//                        }
+//
+//                        break;
+//                    case 2:
+//                        if (d == d1) {
+//                            boxViews[i].setImageResource( R.drawable.pianoc );
+//                        } else {
+//                            boxViews[i].setImageResource( R.drawable.orgpiano );
+//                        }
+//                        break;
+//                    case 3:
+//                        if (d == d1) {
+//                            boxViews[i].setImageResource( R.drawable.pianod );
+//                        } else {
+//                            boxViews[i].setImageResource( R.drawable.orgpiano );
+//                        }
+//                        break;
+//                    case 4:
+//                        if (d == d1) {
+//                            boxViews[i].setImageResource( R.drawable.pianoe );
+//                        } else {
+//                            boxViews[i].setImageResource( R.drawable.orgpiano );
+//                        }
+//                        break;
+//                    case 5:
+//                        if (d == d1) {
+//                            boxViews[i].setImageResource( R.drawable.pianof );
+//                        } else {
+//                            boxViews[i].setImageResource( R.drawable.orgpiano );
+//                        }
+//                        break;
+//                    case 6:
+//                        if (d == d1) {
+//                            boxViews[i].setImageResource( R.drawable.pianog );
+//                        } else {
+//                            boxViews[i].setImageResource( R.drawable.orgpiano );
+//                        }
+//                        break;
+//                    default:
+//                        break;
+//                }
+//               // } else {
+//                   // boxViews[i].setImageResource( R.drawable.orgpiano );
+//               // }
+//                break;
+//            default:
+//                throw new IllegalStateException( "Unexpected value: " + instrumentName );
+//        }
+//    }
 
     public void updateIcon(int i){
         if ( boxes[i].loop.isRunning() ){
