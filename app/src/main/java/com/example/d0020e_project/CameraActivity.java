@@ -2,14 +2,9 @@ package com.example.d0020e_project;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.WallpaperManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -18,8 +13,6 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -83,8 +76,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
         instrumentName = getIntent().getAction();
         switch (instrumentName){
+            case "Trumpet":
             case "Drums":
+                setContentView( R.layout.camera_activity );
                 break;
+            case "Bass":
             case "Piano":
                 setContentView( R.layout.camera_activity_piano );
                 break;
@@ -117,13 +113,12 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         boxViews[4] = findViewById( R.id.imageView5 );
         boxViews[5] = findViewById( R.id.imageView6 );
         boxViews[6] = findViewById( R.id.imageView7 );
+
         for (int i = 0; i < boxViews.length; i++){
             boxViews[i].setImageResource( icons[i] );
-            boxViews[i].setTag( R.drawable.orgpiano );
         }
 
         loopIcon = findViewById(R.id.loopIcon);
-
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
             soundPlayer.onExit();
@@ -135,42 +130,44 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        int BOXHEIGHT = height / 4;
-        int BOXWIDTH = (int) Math.ceil(width / 6);
+        int BOXHEIGHT = (height / 4);
+        int BOXWIDTH = (int) (Math.ceil(width / 6));
+        int asd = 0;
         switch (instrumentName){
+            case "Trumpet":
             case "Drums":
                 // left
-                boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
-                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
-                boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer));
+                boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer, boxViews,0));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer, boxViews,1));
+                boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer, boxViews,2));
                 // right
-                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer));
-                boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
-                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer, boxViews,3));
+                boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer, boxViews,4));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer, boxViews,5));
                 // top
-                boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer));
-                loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
+                boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer, boxViews,6));
+                loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), loopIcon);
+                loopBox.start();
                 break;
+            case "Bass":
             case "Piano":
                 // Down
-                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer), R.drawable.pianod);
-                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer), R.drawable.pianoe);
-                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer), R.drawable.pianof);
-                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer), R.drawable.pianog);
+                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(0, soundPlayer, boxViews,6));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(1, soundPlayer, boxViews,5));
+                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH - asd, BOXHEIGHT - asd),  new LoopRunnable(2, soundPlayer, boxViews,4));
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(3, soundPlayer, boxViews,3));
                 // Upp
-                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer), R.drawable.pianoa);
-                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer), R.drawable.pianob);
-                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer), R.drawable.pianoc);
-                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH, BOXHEIGHT));
+                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(4, soundPlayer, boxViews,2));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(5, soundPlayer, boxViews,1));
+                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(6, soundPlayer, boxViews,0));
+                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH - asd, BOXHEIGHT - asd), loopIcon);
+                loopBox.start();
                 break;
             default:
                 System.out.println("Not yet implemented!");
                 break;
         }
-
-        updateLoopIcon();
         searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this);
-
     }
 
 
@@ -179,7 +176,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // read first frame
         frame1 = inputFrame.rgba();
         // use when testing on (some) emulator's.
-        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
+        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
@@ -198,17 +195,9 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         } else {
             Imgproc.rectangle(frame1, loopBox.rectangle, RED);
         }
-
         // Draw piano keys
-        if (instrumentName == "Piano") {
-            for (int i = 0; i < boxViews.length; i++) {
-                if (boxes[i].loop.isPlaying()) {
-                    boxViews[i].setImageResource( boxes[i].drawable );
-                } else {
-                    boxViews[i].setImageResource( R.drawable.orgpiano );
-                }
-            }
-        }
+        //iconHitIndicate();
+
         Point coordinate = searchThread.getCurrentLocation();
         Point coordinate2 = searchThread.getSecondLocation();
         // For development purposes we draw a circle around the tracked object
@@ -218,105 +207,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);
         return frame1;
-    }
-
-
-//    public void iconHitIndicate(int i){
-//        switch (instrumentName){
-//            case "Drums":
-//                if ( boxes[i].loop.isPlaying() ){
-//                    boxViews[i].setColorFilter(playOnceColor, PorterDuff.Mode.MULTIPLY);
-//                } else {
-//                    boxViews[i].clearColorFilter();
-//                }
-//                break;
-//            case "Piano":
-//
-//                if( (int) boxViews[i].getTag() == R.drawable.orgpiano){
-//                    System.out.println("SUCCESS!!");
-//                }
-//                int d = (int) boxViews[i].getTag();
-//                int d1 = R.drawable.orgpiano;
-//                switch (i){
-//                    case 0:
-//
-//                        if (d == d1) {
-//                            boxViews[i].setImageResource( R.drawable.pianoa );
-//                        } else {
-//                            boxViews[i].setImageResource( R.drawable.orgpiano );
-//                        }
-//
-//                        break;
-//                    case 1:
-//
-//                        if (d == d1) {
-//                            boxViews[i].setImageResource( R.drawable.pianob );
-//                        } else {
-//                            boxViews[i].setImageResource( R.drawable.orgpiano );
-//                        }
-//
-//                        break;
-//                    case 2:
-//                        if (d == d1) {
-//                            boxViews[i].setImageResource( R.drawable.pianoc );
-//                        } else {
-//                            boxViews[i].setImageResource( R.drawable.orgpiano );
-//                        }
-//                        break;
-//                    case 3:
-//                        if (d == d1) {
-//                            boxViews[i].setImageResource( R.drawable.pianod );
-//                        } else {
-//                            boxViews[i].setImageResource( R.drawable.orgpiano );
-//                        }
-//                        break;
-//                    case 4:
-//                        if (d == d1) {
-//                            boxViews[i].setImageResource( R.drawable.pianoe );
-//                        } else {
-//                            boxViews[i].setImageResource( R.drawable.orgpiano );
-//                        }
-//                        break;
-//                    case 5:
-//                        if (d == d1) {
-//                            boxViews[i].setImageResource( R.drawable.pianof );
-//                        } else {
-//                            boxViews[i].setImageResource( R.drawable.orgpiano );
-//                        }
-//                        break;
-//                    case 6:
-//                        if (d == d1) {
-//                            boxViews[i].setImageResource( R.drawable.pianog );
-//                        } else {
-//                            boxViews[i].setImageResource( R.drawable.orgpiano );
-//                        }
-//                        break;
-//                    default:
-//                        break;
-//                }
-//               // } else {
-//                   // boxViews[i].setImageResource( R.drawable.orgpiano );
-//               // }
-//                break;
-//            default:
-//                throw new IllegalStateException( "Unexpected value: " + instrumentName );
-//        }
-//    }
-
-    public void updateIcon(int i){
-        if ( boxes[i].loop.isRunning() ){
-            boxViews[i].setColorFilter(loopColor, PorterDuff.Mode.MULTIPLY);
-        } else {
-            boxViews[i].clearColorFilter();
-        }
-    }
-
-    public void updateLoopIcon(){
-        if (loopBox.isPressed()) {
-            loopIcon.setColorFilter(Color.GREEN);
-        } else {
-            loopIcon.setColorFilter(Color.RED);
-        }
     }
 
     public void releaseObjects() {

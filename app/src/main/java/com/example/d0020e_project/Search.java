@@ -34,8 +34,9 @@ public class Search implements Runnable {
     private boolean run = true;
     private final int BOXWIDTH, frameHeight;
     private int activeLoops = 0;
+
     /* For now we just use a counter to make loopbutton more user friendly. */
-    private int btnPressCount = 0;
+    //private int btnPressCount = 0;
 
     private CameraActivity camAct;
 
@@ -143,13 +144,8 @@ public class Search implements Runnable {
                 boolean rightOrTop = (coordinates2.y < BOXWIDTH) || coordinates2.y > ( frameHeight - BOXWIDTH ) || top || top2;
 
                 if ((loop || loop2)) {
-                    if(btnPressCount == 0) {
-                        loopBox.press();
-                        btnPressCount = 4;
-                        camAct.updateLoopIcon();
-                    } else {
-                        btnPressCount--;
-                    }
+                    loopBox.press();
+                    //camAct.updateLoopIcon();
                 }
 
                 if (left || rightOrTop) {
@@ -166,26 +162,20 @@ public class Search implements Runnable {
                                     boxes[i].loop.startLoop();
                                     boxes[i].loop.unBlock();
                                     increaseActiveloops();
-                                    camAct.updateIcon(i);
-
                                 }
                                 else if ( l.isRunning() ) {
                                     // Stop playing sound in loop
                                     boxes[i].loop.stopLoop();
                                     boxes[i].loop.block();
                                     decreaseActiveloops();
-                                    camAct.updateIcon(i);
                                 }
-
                             } else if ( ( !l.isRunning() ) && ( !l.isPlaying() ) ) {
                                 // Play sound once
                                 if(l.getState() == Thread.State.NEW){ // if thread is not started yet, do so.
                                     boxes[i].loop.start();
                                 }
                                 boxes[i].loop.unBlock();
-                               // boxes[i].loop.showHit( camAct, i );
                                 boxes[i].loop.block(); // set block for next iteration
-                               // boxes[i].loop.hitDone( camAct, i );
                             }
                         }
                     }

@@ -1,23 +1,27 @@
 package com.example.d0020e_project;
 
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.widget.ImageView;
+
 import java.util.concurrent.CountDownLatch;
 
 public class LoopRunnable extends Thread implements Runnable {
 
     private CountDownLatch conditionLatch = new CountDownLatch( 1 );
     private int musicTrack;
+    private final ImageView[] view;
+    private final int idx;
     private SoundPlayer soundPlayer;
     private boolean run = false;
     private boolean isPlaying = false;
 
-    public LoopRunnable(int musicTrack, SoundPlayer s){
+    public LoopRunnable( int musicTrack, SoundPlayer s, ImageView[] v, int idx){
         this.musicTrack = musicTrack;
         this.soundPlayer = s;
+        this.view = v;
+        this.idx = idx;
     }
-
-//    synchronized void showHit(CameraActivity act, int i){ act.iconHitIndicate( i ); }
-//
-//    synchronized void hitDone(CameraActivity act, int i){ act.iconHitIndicate( i ); }
 
     synchronized void startLoop() { run = true; }
 
@@ -37,6 +41,16 @@ public class LoopRunnable extends Thread implements Runnable {
 
     synchronized void block(){ conditionLatch = new CountDownLatch( 1 ); }
 
+    void toggleIcon(){
+        synchronized (view) {
+            if (isPlaying()) {
+                view[idx].setColorFilter( Color.BLUE, PorterDuff.Mode.MULTIPLY );
+            } else {
+                view[idx].clearColorFilter();
+            }
+        }
+    }
+
     @Override
     public void run() {
         while(true) {
@@ -47,7 +61,7 @@ public class LoopRunnable extends Thread implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
+           toggleIcon();
             while (isRunning()) {
                 soundPlayer.playSound( musicTrack );
                 try {
@@ -58,11 +72,12 @@ public class LoopRunnable extends Thread implements Runnable {
             }
             // play sound once if loop variable is not set
             soundPlayer.playSound( musicTrack );
-            // Sleep thread so that we cannot play sound multiple times in
-            // a small timeframe.
+            // Sleep thread so that the sound is not played multiple
+            // times in a small timeframe.
             try {
                 Thread.currentThread().sleep( 500 );
                 setIsNotPlaying(); // done playing sound
+                toggleIcon();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
