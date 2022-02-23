@@ -26,6 +26,37 @@ public class soundSelection extends AppCompatActivity {
                 profile[5] = new int[]{ R.raw.drumsnare3, R.drawable.drumsnare };
                 profile[6] = new int[]{ R.raw.drumsnare2, R.drawable.drumsnare };
                 break;
+
+            case "Piano":
+                profile[0] = new int[]{ R.raw.pianoa3, R.drawable.drumkick };
+                profile[1] = new int[]{ R.raw.pianob3, R.drawable.drumkick };
+                profile[2] = new int[]{ R.raw.pianoc3, R.drawable.drumkick };
+                profile[3] = new int[]{ R.raw.pianoc6, R.drawable.drumkick };
+                profile[4] = new int[]{ R.raw.pianod3, R.drawable.drumkick };
+                profile[5] = new int[]{ R.raw.pianoe3, R.drawable.drumkick };
+                profile[6] = new int[]{ R.raw.pianof3, R.drawable.drumkick };
+                break;
+
+            case "Trumpet":
+                profile[0] = new int[]{ R.raw.trumpeta3, R.drawable.drumkick };
+                profile[1] = new int[]{ R.raw.trumpeta4, R.drawable.drumkick };
+                profile[2] = new int[]{ R.raw.trumpetc4, R.drawable.drumkick };
+                profile[3] = new int[]{ R.raw.trumpetd4, R.drawable.drumkick };
+                profile[4] = new int[]{ R.raw.trumpete4, R.drawable.drumkick };
+                profile[5] = new int[]{ R.raw.trumpetf4, R.drawable.drumkick };
+                profile[6] = new int[]{ R.raw.trumpetg4, R.drawable.drumkick };
+                break;
+
+            case "Bass":
+                profile[0] = new int[]{ R.raw.bass01, R.drawable.drumkick };
+                profile[1] = new int[]{ R.raw.bass02, R.drawable.drumkick };
+                profile[2] = new int[]{ R.raw.bass03, R.drawable.drumkick };
+                profile[3] = new int[]{ R.raw.bass04, R.drawable.drumkick };
+                profile[4] = new int[]{ R.raw.bass05, R.drawable.drumkick };
+                profile[5] = new int[]{ R.raw.bass06, R.drawable.drumkick };
+                profile[6] = new int[]{ R.raw.bass07, R.drawable.drumkick };
+                break;
+
             default:
                 break;
         }
