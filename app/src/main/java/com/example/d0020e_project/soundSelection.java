@@ -28,8 +28,8 @@ public class soundSelection extends AppCompatActivity {
                 break;
 
             case "Piano":
-                profile[0] = new int[]{ R.raw.pianoa3, R.drawable.drumkick };
-                profile[1] = new int[]{ R.raw.pianob3, R.drawable.drumkick };
+                profile[0] = new int[]{ R.raw.pianoa3, R.drawable.drumsnare };
+                profile[1] = new int[]{ R.raw.pianob3, R.drawable.drumhihat };
                 profile[2] = new int[]{ R.raw.pianoc3, R.drawable.drumkick };
                 profile[3] = new int[]{ R.raw.pianoc6, R.drawable.drumkick };
                 profile[4] = new int[]{ R.raw.pianod3, R.drawable.drumkick };
@@ -38,8 +38,8 @@ public class soundSelection extends AppCompatActivity {
                 break;
 
             case "Trumpet":
-                profile[0] = new int[]{ R.raw.trumpeta3, R.drawable.drumkick };
-                profile[1] = new int[]{ R.raw.trumpeta4, R.drawable.drumkick };
+                profile[0] = new int[]{ R.raw.trumpeta3, R.drawable.drumsnare };
+                profile[1] = new int[]{ R.raw.trumpeta4, R.drawable.drumhihat };
                 profile[2] = new int[]{ R.raw.trumpetc4, R.drawable.drumkick };
                 profile[3] = new int[]{ R.raw.trumpetd4, R.drawable.drumkick };
                 profile[4] = new int[]{ R.raw.trumpete4, R.drawable.drumkick };
@@ -48,8 +48,8 @@ public class soundSelection extends AppCompatActivity {
                 break;
 
             case "Bass":
-                profile[0] = new int[]{ R.raw.bass01, R.drawable.drumkick };
-                profile[1] = new int[]{ R.raw.bass02, R.drawable.drumkick };
+                profile[0] = new int[]{ R.raw.bass01, R.drawable.drumsnare };
+                profile[1] = new int[]{ R.raw.bass02, R.drawable.drumhihat };
                 profile[2] = new int[]{ R.raw.bass03, R.drawable.drumkick };
                 profile[3] = new int[]{ R.raw.bass04, R.drawable.drumkick };
                 profile[4] = new int[]{ R.raw.bass05, R.drawable.drumkick };
@@ -112,11 +112,11 @@ public class soundSelection extends AppCompatActivity {
         soundProfileDropdown.setAdapter( adapter );
 
         Button camBtn = findViewById(R.id.continueBtn);
-        Intent camActIntent = new Intent(soundSelection.this, CameraActivity.class);
-        camActIntent.putExtra("colorKey", ( (String) testColorSelectionSpinner.getSelectedItem()));
-        camActIntent.putExtra("SoundProfile", getSounds( (String) soundProfileDropdown.getSelectedItem()));
 
         camBtn.setOnClickListener( v -> {
+            Intent camActIntent = new Intent(soundSelection.this, CameraActivity.class);
+            camActIntent.putExtra("colorKey", ( (String) testColorSelectionSpinner.getSelectedItem()));
+            camActIntent.putExtra("SoundProfile", getSounds( (String) soundProfileDropdown.getSelectedItem()));
             startActivity(camActIntent);
         });
     }
