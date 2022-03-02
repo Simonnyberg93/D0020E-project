@@ -132,7 +132,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public void onCameraViewStarted(int width, int height) {
         int BOXHEIGHT = (height / 4);
         int BOXWIDTH = (int) (Math.ceil(width / 6));
-        int asd = 0;
         switch (instrumentName){
             case "Trumpet":
             case "Drums":
@@ -152,15 +151,15 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             case "Bass":
             case "Piano":
                 // Down
-                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)), new LoopRunnable(0, soundPlayer, boxViews,6));
-                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOX_PADDING + (BOXHEIGHT), BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)), new LoopRunnable(1, soundPlayer, boxViews,5));
-                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOX_PADDING * 2 + (BOXHEIGHT * 2), BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)),  new LoopRunnable(2, soundPlayer, boxViews,4));
-                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOX_PADDING * 3 + (BOXHEIGHT * 3), BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)), new LoopRunnable(3, soundPlayer, boxViews,3));
+                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer, boxViews,6));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer, boxViews,5));
+                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer, boxViews,4));
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer, boxViews,3));
                 // Upp
-                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOX_PADDING * 1 + (BOXHEIGHT), BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)), new LoopRunnable(4, soundPlayer, boxViews,2));
-                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOX_PADDING * 2 + (BOXHEIGHT * 2), BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)), new LoopRunnable(5, soundPlayer, boxViews,1));
-                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOX_PADDING * 3 + (BOXHEIGHT * 3), BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)), new LoopRunnable(6, soundPlayer, boxViews,0));
-                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH - asd, BOXHEIGHT - (BOX_PADDING)), loopIcon);
+                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer, boxViews,2));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer, boxViews,1));
+                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer, boxViews,0));
+                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH, BOXHEIGHT), loopIcon);
                 loopBox.start();
                 break;
             default:
@@ -195,9 +194,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         } else {
             Imgproc.rectangle(frame1, loopBox.rectangle, RED);
         }
-        // Draw piano keys
-        //iconHitIndicate();
-
         Point coordinate = searchThread.getCurrentLocation();
         Point coordinate2 = searchThread.getSecondLocation();
         // For development purposes we draw a circle around the tracked object
