@@ -152,15 +152,15 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             case "Bass":
             case "Piano":
                 // Down
-                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(0, soundPlayer, boxViews,6));
-                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(1, soundPlayer, boxViews,5));
-                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH - asd, BOXHEIGHT - asd),  new LoopRunnable(2, soundPlayer, boxViews,4));
-                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(3, soundPlayer, boxViews,3));
+                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0 + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(0, soundPlayer, boxViews,6));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXHEIGHT + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(1, soundPlayer, boxViews,5));
+                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXHEIGHT * 2 + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd),  new LoopRunnable(2, soundPlayer, boxViews,4));
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXHEIGHT * 3 + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(3, soundPlayer, boxViews,3));
                 // Upp
-                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(4, soundPlayer, boxViews,2));
-                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(5, soundPlayer, boxViews,1));
-                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(6, soundPlayer, boxViews,0));
-                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH - asd, BOXHEIGHT - asd), loopIcon);
+                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXHEIGHT + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(4, soundPlayer, boxViews,2));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXHEIGHT * 2 + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(5, soundPlayer, boxViews,1));
+                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXHEIGHT * 3 + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), new LoopRunnable(6, soundPlayer, boxViews,0));
+                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0 + BOX_PADDING, BOXWIDTH - asd, BOXHEIGHT - asd), loopIcon);
                 loopBox.start();
                 break;
             default:
