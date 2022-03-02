@@ -1,5 +1,6 @@
 package com.example.d0020e_project;
 
+
 import org.opencv.core.Rect;
 
 public class Box {
@@ -10,4 +11,5 @@ public class Box {
         this.rectangle = r;
         this.loop = l;
     }
+
 }

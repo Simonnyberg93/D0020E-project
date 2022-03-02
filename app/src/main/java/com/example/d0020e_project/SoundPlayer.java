@@ -41,36 +41,34 @@ public class SoundPlayer {
         soundPool = null;
     }
 
-    public int getSound(int i){
-        return sounds[i];
-    }
 
     public void playSound( int i ) {
-        switch (i) {
-            case 0:
-                soundPool.play( sound0, 1, 1, 0, 0, 1 );
-                break;
-            case 1:
-                soundPool.play( sound1, 1, 1, 0, 0, 1 );
-                break;
-            case 2:
-                soundPool.play( sound2, 1, 1, 0, 0, 1 );
-                break;
-            case 3:
-                soundPool.play( sound3, 1, 1, 0, 0, 1 );
-                break;
-            case 4:
-                soundPool.play( sound4, 1, 1, 0, 0, 1 );
-                break;
-            case 5:
-                soundPool.play( sound5, 1, 1, 0, 0, 1 );
-                break;
-            case 6:
-                soundPool.play( sound6, 1, 1, 0, 0, 1 );
-                break;
-            default:
-                break;
+        if (soundPool != null) {
+            switch (i) {
+                case 0:
+                    soundPool.play( sound0, 1, 1, 0, 0, 1 );
+                    break;
+                case 1:
+                    soundPool.play( sound1, 1, 1, 0, 0, 1 );
+                    break;
+                case 2:
+                    soundPool.play( sound2, 1, 1, 0, 0, 1 );
+                    break;
+                case 3:
+                    soundPool.play( sound3, 1, 1, 0, 0, 1 );
+                    break;
+                case 4:
+                    soundPool.play( sound4, 1, 1, 0, 0, 1 );
+                    break;
+                case 5:
+                    soundPool.play( sound5, 1, 1, 0, 0, 1 );
+                    break;
+                case 6:
+                    soundPool.play( sound6, 1, 1, 0, 0, 1 );
+                    break;
+                default:
+                    break;
+            }
         }
-
     }
 }

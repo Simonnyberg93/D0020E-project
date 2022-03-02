@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -42,11 +41,13 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private final Scalar RED = new Scalar( 255,0,0 );
     private CameraActivity camAct = this;
     private Search searchThread;
+    private String instrumentName = "";
 
     private ImageView[] boxViews = new ImageView[boxes.length];
 
     ImageView loopIcon;
     private int loopColor = Color.parseColor("#99ffbb");
+    private final int BOX_PADDING = 20;
 
     BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(CameraActivity.this) {
         @Override
@@ -73,7 +74,20 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         requestWindowFeature( Window.FEATURE_NO_TITLE );//will hide the title
         getSupportActionBar().hide(); //hide the title bar
 
-        setContentView(R.layout.camera_activity);
+        instrumentName = getIntent().getAction();
+        switch (instrumentName){
+            case "Trumpet":
+            case "Drums":
+                setContentView( R.layout.camera_activity );
+                break;
+            case "Bass":
+            case "Piano":
+                setContentView( R.layout.camera_activity_piano );
+                break;
+            default:
+                setContentView(R.layout.camera_activity);
+                break;
+        }
         javaCameraView = findViewById(R.id.javaCameraView);
         javaCameraView.setCameraPermissionGranted();
         javaCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -88,7 +102,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             tracks[i] = soundProfile[i][0];
             icons[i] = soundProfile[i][1];
         }
-
         soundPlayer = new SoundPlayer( this, tracks );
 
         Button btnBack = findViewById( R.id.btnBack );
@@ -100,12 +113,12 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         boxViews[4] = findViewById( R.id.imageView5 );
         boxViews[5] = findViewById( R.id.imageView6 );
         boxViews[6] = findViewById( R.id.imageView7 );
+
         for (int i = 0; i < boxViews.length; i++){
             boxViews[i].setImageResource( icons[i] );
         }
 
         loopIcon = findViewById(R.id.loopIcon);
-
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
             soundPlayer.onExit();
@@ -117,24 +130,43 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        int BOXHEIGHT = height / 4;
-        int BOXWIDTH = (int) Math.ceil(width / 6);
-
-        // left
-        boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer));
-        boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2 , 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer));
-        boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer));
-        // right
-        boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer));
-        boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer));
-        boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer));
-        // top
-        boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), new LoopRunnable(6, soundPlayer));
-
-        loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH));
-        updateLoopIcon();
+        int BOXHEIGHT = (height / 4);
+        int BOXWIDTH = (int) (Math.ceil(width / 6));
+        switch (instrumentName){
+            case "Trumpet":
+            case "Drums":
+                // left
+                boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer, boxViews,0));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer, boxViews,1));
+                boxes[2] = new Box(new Rect(width - (BOXWIDTH * 2), 0, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer, boxViews,2));
+                // right
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer, boxViews,3));
+                boxes[4] = new Box(new Rect((width - (BOXWIDTH * 3))- BOXWIDTH/2, height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer, boxViews,4));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 2), height - BOXWIDTH, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer, boxViews,5));
+                // top
+                boxes[6] = new Box(new Rect(width - BOXHEIGHT, (height /2) - (BOXWIDTH / 2), BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer, boxViews,6));
+                loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), loopIcon);
+                loopBox.start();
+                break;
+            case "Bass":
+            case "Piano":
+                // Down
+                boxes[6] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer, boxViews,6));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer, boxViews,5));
+                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(2, soundPlayer, boxViews,4));
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer, boxViews,3));
+                // Upp
+                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(4, soundPlayer, boxViews,2));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer, boxViews,1));
+                boxes[0] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer, boxViews,0));
+                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH, BOXHEIGHT), loopIcon);
+                loopBox.start();
+                break;
+            default:
+                System.out.println("Not yet implemented!");
+                break;
+        }
         searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this);
-
     }
 
 
@@ -142,7 +174,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
-
         // use when testing on (some) emulator's.
         Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 
@@ -172,22 +203,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);
         return frame1;
-    }
-
-    public void updateIcon(int i){
-        if ( boxes[i].loop.isRunning() ){
-            boxViews[i].setColorFilter(loopColor, PorterDuff.Mode.MULTIPLY);
-        } else {
-            boxViews[i].clearColorFilter();
-        }
-    }
-
-    public void updateLoopIcon(){
-        if (loopBox.isPressed()) {
-            loopIcon.setColorFilter(Color.GREEN);
-        } else {
-            loopIcon.setColorFilter(Color.RED);
-        }
     }
 
     public void releaseObjects() {

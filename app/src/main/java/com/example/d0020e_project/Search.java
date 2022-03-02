@@ -34,8 +34,9 @@ public class Search implements Runnable {
     private boolean run = true;
     private final int BOXWIDTH, frameHeight;
     private int activeLoops = 0;
+
     /* For now we just use a counter to make loopbutton more user friendly. */
-    private int btnPressCount = 0;
+    //private int btnPressCount = 0;
 
     private CameraActivity camAct;
 
@@ -121,7 +122,6 @@ public class Search implements Runnable {
                     List<Mat> largestContourVec = new ArrayList<>();
                     largestContourVec.add( contours.get( contours.size() - 1 ) );
                     largestContourVec.add( contours.get( 0 ) );
-                    //largestContourVec.add( contours.get( contours.size() - 2 ) );
 
                     //make a bounding rectangle around the largest contour then find its centroid
                     //this will be the object's final estimated position.
@@ -132,59 +132,39 @@ public class Search implements Runnable {
                     this.currentLocation = coordinates;
                     this.currentLocation2 = coordinates2;
                 }
-                // is an object in topbox?
-                boolean top = boxes[boxes.length - 1].rectangle.contains( coordinates );
-                boolean top2 = boxes[boxes.length - 1].rectangle.contains( coordinates2 );
-
                 boolean loop = loopBox.rectangle.contains( coordinates );
                 boolean loop2 = loopBox.rectangle.contains( coordinates2 );
 
-                boolean left = (coordinates.y < BOXWIDTH) || coordinates.y > ( frameHeight - BOXWIDTH );
-                boolean rightOrTop = (coordinates2.y < BOXWIDTH) || coordinates2.y > ( frameHeight - BOXWIDTH ) || top || top2;
-
                 if ((loop || loop2)) {
-                    if(btnPressCount == 0) {
-                        loopBox.press();
-                        btnPressCount = 4;
-                        camAct.updateLoopIcon();
-                    } else {
-                        btnPressCount--;
-                    }
+                    loopBox.press();
                 }
-
-                if (left || rightOrTop) {
-                    for (int i = 0; i < boxes.length; i++) {
-                        Rect r = boxes[i].rectangle;
-                        LoopRunnable l = boxes[i].loop;
-                        if (r.contains( coordinates ) || r.contains( coordinates2 )) {
-                            if (loopBox.isPressed() ) {
-                                if ( !( l.isRunning()) && (activeLoops < 3) ) {
-                                    // Start playing sound in loop
-                                    if(l.getState() == Thread.State.NEW){ // if thread is not started yet, do so.
-                                        boxes[i].loop.start();
-                                    }
-                                    boxes[i].loop.startLoop();
-                                    boxes[i].loop.unBlock();
-                                    increaseActiveloops();
-                                    camAct.updateIcon(i);
-
-                                }
-                                else if ( l.isRunning() ) {
-                                    // Stop playing sound in loop
-                                    boxes[i].loop.stopLoop();
-                                    boxes[i].loop.block();
-                                    decreaseActiveloops();
-                                    camAct.updateIcon(i);
-                                }
-
-                            } else if ( ( !l.isRunning() ) && ( !l.isPlaying() ) ) {
-                                // Play sound once
+                for (int i = 0; i < boxes.length; i++) {
+                    Rect r = boxes[i].rectangle;
+                    LoopRunnable l = boxes[i].loop;
+                    if (r.contains( coordinates ) || r.contains( coordinates2 )) {
+                        if (loopBox.isPressed() ) {
+                            if ( !( l.isRunning()) && (activeLoops < 3) ) {
+                                // Start playing sound in loop
                                 if(l.getState() == Thread.State.NEW){ // if thread is not started yet, do so.
                                     boxes[i].loop.start();
                                 }
+                                boxes[i].loop.startLoop();
                                 boxes[i].loop.unBlock();
-                                boxes[i].loop.block(); // set block for next iteration
+                                increaseActiveloops();
                             }
+                            else if ( l.isRunning() ) {
+                                // Stop playing sound in loop
+                                boxes[i].loop.stopLoop();
+                                boxes[i].loop.block();
+                                decreaseActiveloops();
+                            }
+                        } else if ( ( !l.isRunning() ) && ( !l.isPlaying() ) ) {
+                            // Play sound once
+                            if(l.getState() == Thread.State.NEW){ // if thread is not started yet, do so.
+                                boxes[i].loop.start();
+                            }
+                            boxes[i].loop.unBlock();
+                            boxes[i].loop.block(); // set block for next iteration
                         }
                     }
                 }
