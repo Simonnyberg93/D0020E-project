@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -39,6 +40,8 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     private final Scalar BLUE = new Scalar( 0,0,255 );
     private final Scalar GREEN = new Scalar( 0,255,0 );
     private final Scalar RED = new Scalar( 255,0,0 );
+    private Scalar lowerCR;     //lower color-range
+    private Scalar upperCR;     //upper color-range
     private CameraActivity camAct = this;
     private Search searchThread;
     private String instrumentName = "";
@@ -74,7 +77,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         requestWindowFeature( Window.FEATURE_NO_TITLE );//will hide the title
         getSupportActionBar().hide(); //hide the title bar
 
-        instrumentName = getIntent().getAction();
+        instrumentName =  getIntent().getStringExtra( "SoundProfile" );
         switch (instrumentName){
             case "Trumpet":
             case "Drums":
@@ -94,14 +97,17 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         javaCameraView.setCvCameraViewListener(CameraActivity.this);
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        upperCR = getUpperCR(getIntent().getStringExtra( "colorKey" ));
+        lowerCR = getLowerCR(getIntent().getStringExtra( "colorKey" ));
 
-        int[][] soundProfile = (int[][]) getIntent().getSerializableExtra( "SoundProfile" );
+        int[][] soundProfile = (int[][]) getIntent().getSerializableExtra( "profile" );
         int[] icons = new int[soundProfile.length];
         int[] tracks = new int[soundProfile.length];
         for(int i = 0; i < soundProfile.length; i++){
             tracks[i] = soundProfile[i][0];
             icons[i] = soundProfile[i][1];
         }
+
         soundPlayer = new SoundPlayer( this, tracks );
 
         Button btnBack = findViewById( R.id.btnBack );
@@ -113,12 +119,12 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         boxViews[4] = findViewById( R.id.imageView5 );
         boxViews[5] = findViewById( R.id.imageView6 );
         boxViews[6] = findViewById( R.id.imageView7 );
-
         for (int i = 0; i < boxViews.length; i++){
             boxViews[i].setImageResource( icons[i] );
         }
 
         loopIcon = findViewById(R.id.loopIcon);
+
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
             soundPlayer.onExit();
@@ -166,14 +172,53 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 System.out.println("Not yet implemented!");
                 break;
         }
-        searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this);
+        searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this, lowerCR, upperCR);
+    }
+    //private final Scalar LIGHTGREEN = new Scalar( 70, 100, 100 );
+    //private final Scalar DARKGREEN = new Scalar( 103, 255, 255 );
+    public Scalar getLowerCR(String colorKey){       //lower color range
+        switch(colorKey){
+            case "Green":                               //works good for "normal" green
+                return new Scalar(70, 100, 100);
+            case "Orange":                              //works fine for "neon" orange
+                return new Scalar(1, 140, 70);
+            case "Blue":                                //this is bright blue
+                return new Scalar(90, 195, 90);
+            case "Pink":                                //Works well for neon pink
+                return new Scalar(150, 140, 125);
+            case "Yellow":                              //Good tuning for "yellow" yellow, not optimized for "green" yellow
+                return new Scalar(23, 140, 125);
+            case "Red":                                 //Really difficult to fine tune to "ignore" skin nuances, maybe remove
+                return new Scalar(171, 200, 170);
+            default:
+                return new Scalar(100, 170, 125);
+        }
     }
 
+    public Scalar getUpperCR(String colorKey){       //upper color range
+        switch(colorKey){
+            case "Green":
+                return new Scalar(103, 255, 255);
+            case "Orange":
+                return new Scalar(13, 255, 255);
+            case "Blue":
+                return new Scalar(127, 255, 255);
+            case "Pink":
+                return new Scalar(170, 215, 255);
+            case "Yellow":
+                return new Scalar(43, 255, 255);
+            case "Red":
+                return new Scalar(179, 255, 255);
+            default:
+                return new Scalar(0, 0, 0, 0);
+        }
+    }
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
+
         // use when testing on (some) emulator's.
         Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
 

@@ -59,6 +59,21 @@ public class soundSelection extends AppCompatActivity {
         return profile;
     }
 
+//    public int[] getSounds(String profile) {
+//        switch (profile){
+//            case "Drums":
+//                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
+//            case "Bass":
+//                return  new int[] {R.raw.bass01, R.raw.bass02, R.raw.bass03, R.raw.bass04, R.raw.bass05, R.raw.bass06, R.raw.bass07, R.raw.bass08, R.raw.bass09};
+//            case "Trumpet":
+//                return  new int[] {R.raw.trumpeta3, R.raw.trumpeta4, R.raw.trumpetc4, R.raw.trumpetd4, R.raw.trumpete4, R.raw.trumpetf4, R.raw.trumpetg3, R.raw.trumpetg4, R.raw.trumpetg5};
+//            case "Piano":
+//                return  new int[] {R.raw.pianoa3, R.raw.pianob3, R.raw.pianoc3, R.raw.pianoc6, R.raw.pianod3, R.raw.pianoe3, R.raw.pianof3, R.raw.pianog4, R.raw.pianog5};
+//            default:
+//                return new int[] {0};
+//        }
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +84,22 @@ public class soundSelection extends AppCompatActivity {
         // make sure screen does not go dark
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        //Select color and test color
+        Spinner testColorSelectionSpinner = findViewById( R.id.spinnerColor);
+        String[] testColors = new String [] {"Blue", "Green", "Orange", "Pink", "Yellow", "Red"};
+
+        ArrayAdapter<String> adapterColor = new ArrayAdapter<>(this, R.layout.spinner_selected_item, testColors);
+        adapterColor.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        testColorSelectionSpinner.setAdapter (adapterColor);
+
+        Button colorTestBtn = findViewById(R.id.colorTestBtn);
+        colorTestBtn.setOnClickListener( v -> {
+            startActivity( new Intent(soundSelection.this, SelectcolorTestview.class).putExtra("colorKey",
+                    ( (String) testColorSelectionSpinner.getSelectedItem())));
+            finish();
+        });
+
+        //Soundprofile selection
         Spinner soundProfileDropdown = findViewById( R.id.spinnerSP );
 
         String[] soundprofiles = new String[] {"Drums", "Piano", "Bass", "Trumpet"};
@@ -77,11 +108,14 @@ public class soundSelection extends AppCompatActivity {
         soundProfileDropdown.setAdapter( adapter );
 
         Button camBtn = findViewById(R.id.continueBtn);
-        camBtn.setOnClickListener( v -> {
 
-            startActivity( new Intent(soundSelection.this, CameraActivity.class).putExtra("SoundProfile",
-                    getSounds( (String) soundProfileDropdown.getSelectedItem())).setAction( (String) soundProfileDropdown.getSelectedItem() ));
-            finish();
+        camBtn.setOnClickListener( v -> {
+            Intent camActIntent = new Intent(soundSelection.this, CameraActivity.class);
+            camActIntent.putExtra("colorKey", ( (String) testColorSelectionSpinner.getSelectedItem()));
+            camActIntent.putExtra("SoundProfile",  (String) soundProfileDropdown.getSelectedItem());
+            camActIntent.putExtra( "profile", (int[][]) getSounds( (String) soundProfileDropdown.getSelectedItem() ) );
+
+            startActivity(camActIntent);
         });
     }
 }
