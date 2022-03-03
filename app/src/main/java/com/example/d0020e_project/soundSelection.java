@@ -11,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class soundSelection extends AppCompatActivity {
 
@@ -53,26 +54,19 @@ public class soundSelection extends AppCompatActivity {
                 profile[5] = new int[]{ R.raw.bass08, R.drawable.bass4 };
                 profile[6] = new int[]{ R.raw.bass09, R.drawable.bass5 };
                 break;
+            case "Mixed":
+                profile[0] = new int[]{ R.raw.drumkick, R.drawable.drumkick };
+                profile[1] = new int[]{ R.raw.pianoa3, R.drawable.pianoa };
+                profile[2] = new int[]{ R.raw.pianob3, R.drawable.pianob };
+                profile[3] = new int[]{ R.raw.bass06, R.drawable.bass4 };
+                profile[4] = new int[]{ R.raw.trumpeta3, R.drawable.trumpeta };
+                profile[5] = new int[]{ R.raw.drumsnare1, R.drawable.drumsnare };
+                profile[6] = new int[]{ R.raw.trumpetg3, R.drawable.trumpetg };
             default:
                 break;
         }
         return profile;
     }
-
-//    public int[] getSounds(String profile) {
-//        switch (profile){
-//            case "Drums":
-//                return  new int[] {R.raw.drumsnare1, R.raw.drumshorthat, R.raw.drumsnare2, R.raw.drumsnare3, R.raw.drumsnare4, R.raw.drumsnarelong, R.raw.drumhihat, R.raw.drumkick, R.raw.drumlonghat};
-//            case "Bass":
-//                return  new int[] {R.raw.bass01, R.raw.bass02, R.raw.bass03, R.raw.bass04, R.raw.bass05, R.raw.bass06, R.raw.bass07, R.raw.bass08, R.raw.bass09};
-//            case "Trumpet":
-//                return  new int[] {R.raw.trumpeta3, R.raw.trumpeta4, R.raw.trumpetc4, R.raw.trumpetd4, R.raw.trumpete4, R.raw.trumpetf4, R.raw.trumpetg3, R.raw.trumpetg4, R.raw.trumpetg5};
-//            case "Piano":
-//                return  new int[] {R.raw.pianoa3, R.raw.pianob3, R.raw.pianoc3, R.raw.pianoc6, R.raw.pianod3, R.raw.pianoe3, R.raw.pianof3, R.raw.pianog4, R.raw.pianog5};
-//            default:
-//                return new int[] {0};
-//        }
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +82,8 @@ public class soundSelection extends AppCompatActivity {
         Spinner testColorSelectionSpinner = findViewById( R.id.spinnerColor);
         String[] testColors = new String [] {"Blue", "Green", "Orange", "Pink", "Yellow", "Red"};
 
+        TextView textView = findViewById( R.id.editTextNumber4 );
+        textView.setText( "2555" );
         ArrayAdapter<String> adapterColor = new ArrayAdapter<>(this, R.layout.spinner_selected_item, testColors);
         adapterColor.setDropDownViewResource(R.layout.spinner_dropdown_item);
         testColorSelectionSpinner.setAdapter (adapterColor);
@@ -102,7 +98,7 @@ public class soundSelection extends AppCompatActivity {
         //Soundprofile selection
         Spinner soundProfileDropdown = findViewById( R.id.spinnerSP );
 
-        String[] soundprofiles = new String[] {"Drums", "Piano", "Bass", "Trumpet"};
+        String[] soundprofiles = new String[] {"Drums", "Piano", "Bass", "Trumpet", "Mixed"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>( this, R.layout.spinner_selected_item, soundprofiles );
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         soundProfileDropdown.setAdapter( adapter );

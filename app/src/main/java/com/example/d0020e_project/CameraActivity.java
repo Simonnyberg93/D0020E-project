@@ -83,6 +83,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             case "Drums":
                 setContentView( R.layout.camera_activity );
                 break;
+            case "Mixed":
             case "Bass":
             case "Piano":
                 setContentView( R.layout.camera_activity_piano );
@@ -99,6 +100,8 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
         upperCR = getUpperCR(getIntent().getStringExtra( "colorKey" ));
         lowerCR = getLowerCR(getIntent().getStringExtra( "colorKey" ));
+        System.out.println("Upper: " + upperCR);
+        System.out.println("Lower: " + lowerCR);
 
         int[][] soundProfile = (int[][]) getIntent().getSerializableExtra( "profile" );
         int[] icons = new int[soundProfile.length];
@@ -154,6 +157,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 loopBox = new LoopBox(new Rect(0,  height /2 - (BOXWIDTH / 2), BOXHEIGHT, BOXWIDTH), loopIcon);
                 loopBox.start();
                 break;
+            case "Mixed":
             case "Bass":
             case "Piano":
                 // Down
@@ -174,12 +178,11 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         }
         searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this, lowerCR, upperCR);
     }
-    //private final Scalar LIGHTGREEN = new Scalar( 70, 100, 100 );
-    //private final Scalar DARKGREEN = new Scalar( 103, 255, 255 );
+
     public Scalar getLowerCR(String colorKey){       //lower color range
         switch(colorKey){
             case "Green":                               //works good for "normal" green
-                return new Scalar(70, 100, 100);
+                return new Scalar(50, 125, 115);
             case "Orange":                              //works fine for "neon" orange
                 return new Scalar(1, 140, 70);
             case "Blue":                                //this is bright blue
@@ -198,7 +201,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public Scalar getUpperCR(String colorKey){       //upper color range
         switch(colorKey){
             case "Green":
-                return new Scalar(103, 255, 255);
+                return new Scalar(70, 255, 255);
             case "Orange":
                 return new Scalar(13, 255, 255);
             case "Blue":
@@ -218,33 +221,30 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         // read first frame
         frame1 = inputFrame.rgba();
-
         // use when testing on (some) emulator's.
-        Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
-
+       // Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
             searchThread.addFrame(frame1.clone());
         }
         // draw our sensor locations, this will be removed, we do not want to draw on every frame.
-        for (Box box : boxes){
-            if ( box.loop.isRunning() ){
-                Imgproc.rectangle(frame1, box.rectangle, BLUE);
-            } else {
-                Imgproc.rectangle(frame1, box.rectangle, WHITE);
-            }
-        }
-        if (loopBox.isPressed()) {
-            Imgproc.rectangle(frame1, loopBox.rectangle, GREEN);
-        } else {
-            Imgproc.rectangle(frame1, loopBox.rectangle, RED);
-        }
-        Point coordinate = searchThread.getCurrentLocation();
-        Point coordinate2 = searchThread.getSecondLocation();
+//        for (Box box : boxes){
+//            if ( box.loop.isRunning() ){
+//                Imgproc.rectangle(frame1, box.rectangle, BLUE);
+//            } else {
+//                Imgproc.rectangle(frame1, box.rectangle, WHITE);
+//            }
+//        }
+//        if (loopBox.isPressed()) {
+//            Imgproc.rectangle(frame1, loopBox.rectangle, GREEN);
+//        } else {
+//            Imgproc.rectangle(frame1, loopBox.rectangle, RED);
+//        }
+        //Point coordinate = searchThread.getCurrentLocation();
+        //Point coordinate2 = searchThread.getSecondLocation();
         // For development purposes we draw a circle around the tracked object
-        Imgproc.circle( frame1, coordinate, 20, WHITE );
-        Imgproc.circle( frame1, coordinate2, 20, WHITE );
-
+        //Imgproc.circle( frame1, coordinate, 20, WHITE );
+        //Imgproc.circle( frame1, coordinate2, 20, WHITE );
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);
         return frame1;

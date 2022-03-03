@@ -27,8 +27,8 @@ public class Search implements Runnable {
     private Scalar lowerCR;
 
     private LinkedBlockingQueue<Mat> queue = new LinkedBlockingQueue<Mat>();
-    private Point currentLocation = new Point( -1, -1 );
-    private Point currentLocation2 = new Point( -1, -1 );
+    //private Point currentLocation = new Point( -1, -1 );
+    //private Point currentLocation2 = new Point( -1, -1 );
     private Box[] boxes;
     private LoopBox loopBox;
     private boolean run = true;
@@ -51,13 +51,13 @@ public class Search implements Runnable {
         new Thread( this ).start();
     }
 
-    public Point getCurrentLocation() {
-        return currentLocation;
-    }
-
-    public Point getSecondLocation() {
-        return currentLocation2;
-    }
+//    public Point getCurrentLocation() {
+//        return currentLocation;
+//    }
+//
+//    public Point getSecondLocation() {
+//        return currentLocation2;
+//    }
 
     public void addFrame( Mat frame ) {
         try {
@@ -103,10 +103,7 @@ public class Search implements Runnable {
                 hsv = new Mat();
                 mask = new Mat();
                 Imgproc.GaussianBlur( frame, blurred, new Size( 11, 11 ), 0 );
-
-                // which one to use?
-                Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_BGR2HSV );
-                //Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_RGB2HSV );
+                Imgproc.cvtColor( blurred, hsv, Imgproc.COLOR_RGB2HSV );
 
                 /* The main functions to track colour object. */
                 Core.inRange( hsv, lowerCR, upperCR, mask );
@@ -134,8 +131,8 @@ public class Search implements Runnable {
                     coordinates2 = boundingRect( largestContourVec.get( 1 ) ).middle();
 
                     // this is just for development purposes
-                    this.currentLocation = coordinates;
-                    this.currentLocation2 = coordinates2;
+                    //this.currentLocation = coordinates;
+                    //this.currentLocation2 = coordinates2;
                 }
                 boolean loop = loopBox.rectangle.contains( coordinates );
                 boolean loop2 = loopBox.rectangle.contains( coordinates2 );
