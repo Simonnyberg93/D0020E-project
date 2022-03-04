@@ -15,6 +15,8 @@ public class LoopRunnable extends Thread implements Runnable {
     private SoundPlayer soundPlayer;
     private boolean run = false;
     private boolean isPlaying = false;
+    private int sleepTime = 500;
+    private boolean runThread = true;
 
     public LoopRunnable( int musicTrack, SoundPlayer s, ImageView[] v, int idx){
         this.musicTrack = musicTrack;
@@ -37,6 +39,8 @@ public class LoopRunnable extends Thread implements Runnable {
 
     synchronized void stopLoop() { run = false; }
 
+    synchronized void stopThread() { runThread = false;}
+
     synchronized void unBlock() { conditionLatch.countDown(); }
 
     synchronized void block(){ conditionLatch = new CountDownLatch( 1 ); }
@@ -51,9 +55,13 @@ public class LoopRunnable extends Thread implements Runnable {
         }
     }
 
+    synchronized public void setSleepTime(int time){
+        sleepTime = time;
+    }
+
     @Override
     public void run() {
-        while(true) {
+        while(runThread) {
             try {
                 // block thread until conditionLatch = 0
                 conditionLatch.await();
@@ -65,7 +73,7 @@ public class LoopRunnable extends Thread implements Runnable {
             while (isRunning()) {
                 soundPlayer.playSound( musicTrack );
                 try {
-                   Thread.currentThread().sleep( 500 );
+                   Thread.currentThread().sleep( sleepTime );
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -75,7 +83,7 @@ public class LoopRunnable extends Thread implements Runnable {
             // Sleep thread so that the sound is not played multiple
             // times in a small timeframe.
             try {
-                Thread.currentThread().sleep( 500 );
+                Thread.currentThread().sleep( sleepTime );
                 setIsNotPlaying(); // done playing sound
                 toggleIcon();
             } catch (InterruptedException e) {

@@ -13,6 +13,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -176,6 +177,49 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 System.out.println("Not yet implemented!");
                 break;
         }
+        SeekBar seekBar = findViewById( R.id.seekBar );
+        seekBar.setOnSeekBarChangeListener( new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if( fromUser ){
+                    int time;
+                    switch (progress){
+                        case 0:
+                            time = 100;
+                            break;
+                        case 1:
+                            time = 300;
+                            break;
+                        case 2:
+                            time = 500;
+                            break;
+                        case 3:
+                            time = 700;
+                            break;
+                        case 4:
+                            time = 900;
+                            break;
+                        default:
+                            time = 500;
+                            break;
+                    }
+                    for( int i = 0; i < boxes.length; i++ ){
+                        boxes[i].loop.setSleepTime(time);
+                    }
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        } );
+
         searchThread = new Search(boxes, loopBox, BOXWIDTH, height, this, lowerCR, upperCR);
     }
 
@@ -256,7 +300,13 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
 
     @Override
     public void onCameraViewStopped() {
+        for(int i = 0; i < boxes.length; i++){
+            boxes[i].loop.stopLoop();
+            boxes[i].loop.stopThread();
+        }
+        searchThread.stopLoop();
         releaseObjects();
+        finish();
     }
 
     @Override
@@ -270,6 +320,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         if (javaCameraView != null){
             javaCameraView.disableView();
         }
+        finish();
     }
 
     @Override

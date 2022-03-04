@@ -82,8 +82,6 @@ public class soundSelection extends AppCompatActivity {
         Spinner testColorSelectionSpinner = findViewById( R.id.spinnerColor);
         String[] testColors = new String [] {"Blue", "Green", "Orange", "Pink", "Yellow", "Red"};
 
-        TextView textView = findViewById( R.id.editTextNumber4 );
-        textView.setText( "2555" );
         ArrayAdapter<String> adapterColor = new ArrayAdapter<>(this, R.layout.spinner_selected_item, testColors);
         adapterColor.setDropDownViewResource(R.layout.spinner_dropdown_item);
         testColorSelectionSpinner.setAdapter (adapterColor);
