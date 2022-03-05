@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
@@ -25,7 +24,6 @@ import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -87,7 +85,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             case "Mixed":
             case "Bass":
             case "Piano":
-                setContentView( R.layout.camera_activity_piano );
+                setContentView( R.layout.camera_activity_secondlayout );
                 break;
             default:
                 setContentView(R.layout.camera_activity);
@@ -132,7 +130,7 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
             soundPlayer.onExit();
-            startActivity( new Intent(CameraActivity.this, soundSelection.class));
+            startActivity( new Intent(CameraActivity.this, SoundSelection.class));
             finish();
         } );
 
@@ -159,6 +157,18 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
                 loopBox.start();
                 break;
             case "Mixed":
+                // Down
+                boxes[0] = new Box(new Rect(width - (BOXWIDTH * 5), 0, BOXWIDTH, BOXHEIGHT), new LoopRunnable(6, soundPlayer, boxViews,6));
+                boxes[5] = new Box(new Rect(width - (BOXWIDTH * 5) , BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(5, soundPlayer, boxViews,5));
+                boxes[4] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT),  new LoopRunnable(4, soundPlayer, boxViews,4));
+                boxes[3] = new Box(new Rect(width - (BOXWIDTH * 5), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(3, soundPlayer, boxViews,3));
+                // Upp
+                boxes[2] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH + BOX_PADDING, BOXWIDTH, BOXHEIGHT), new LoopRunnable(2, soundPlayer, boxViews,2));
+                boxes[1] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 2 + BOX_PADDING*2, BOXWIDTH, BOXHEIGHT), new LoopRunnable(1, soundPlayer, boxViews,1));
+                boxes[6] = new Box(new Rect((width - (BOXWIDTH * 5/2)), BOXWIDTH * 3 + BOX_PADDING*3, BOXWIDTH, BOXHEIGHT), new LoopRunnable(0, soundPlayer, boxViews,0));
+                loopBox = new LoopBox(new Rect((width - (BOXWIDTH * 5/2)),  0, BOXWIDTH, BOXHEIGHT), loopIcon);
+                loopBox.start();
+                break;
             case "Bass":
             case "Piano":
                 // Down
@@ -294,9 +304,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
         return frame1;
     }
 
-    public void releaseObjects() {
-        //frame1.release();
-    }
 
     @Override
     public void onCameraViewStopped() {
@@ -305,7 +312,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
             boxes[i].loop.stopThread();
         }
         searchThread.stopLoop();
-        releaseObjects();
         finish();
     }
 
@@ -316,7 +322,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        releaseObjects();
         if (javaCameraView != null){
             javaCameraView.disableView();
         }
@@ -326,7 +331,6 @@ public class CameraActivity extends AppCompatActivity implements CameraBridgeVie
     @Override
     protected void onPause() {
         super.onPause();
-        releaseObjects();
         if(javaCameraView != null) {
             javaCameraView.disableView();
         }

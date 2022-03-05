@@ -1,21 +1,21 @@
 package com.example.d0020e_project;
 
+import static android.view.View.VISIBLE;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 
-public class soundSelection extends AppCompatActivity {
+public class SoundSelection extends AppCompatActivity {
 
-    public int[][] getSounds(String s) {
+
+    public int[][] getSounds( String s) {
         int[][] profile = new int[7][2];
         switch (s) {
             case "Trumpet":
@@ -79,7 +79,7 @@ public class soundSelection extends AppCompatActivity {
         getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //Select color and test color
-        Spinner testColorSelectionSpinner = findViewById( R.id.spinnerColor);
+        Spinner testColorSelectionSpinner = findViewById( R.id.spinnerColor );
         String[] testColors = new String [] {"Blue", "Green", "Orange", "Pink", "Yellow", "Red"};
 
         ArrayAdapter<String> adapterColor = new ArrayAdapter<>(this, R.layout.spinner_selected_item, testColors);
@@ -88,7 +88,7 @@ public class soundSelection extends AppCompatActivity {
 
         Button colorTestBtn = findViewById(R.id.colorTestBtn);
         colorTestBtn.setOnClickListener( v -> {
-            startActivity( new Intent(soundSelection.this, SelectcolorTestview.class).putExtra("colorKey",
+            startActivity( new Intent( SoundSelection.this, SelectcolorTestview.class).putExtra("colorKey",
                     ( (String) testColorSelectionSpinner.getSelectedItem())));
             finish();
         });
@@ -102,9 +102,8 @@ public class soundSelection extends AppCompatActivity {
         soundProfileDropdown.setAdapter( adapter );
 
         Button camBtn = findViewById(R.id.continueBtn);
-
         camBtn.setOnClickListener( v -> {
-            Intent camActIntent = new Intent(soundSelection.this, CameraActivity.class);
+            Intent camActIntent = new Intent( SoundSelection.this, CameraActivity.class);
             camActIntent.putExtra("colorKey", ( (String) testColorSelectionSpinner.getSelectedItem()));
             camActIntent.putExtra("SoundProfile",  (String) soundProfileDropdown.getSelectedItem());
             camActIntent.putExtra( "profile", (int[][]) getSounds( (String) soundProfileDropdown.getSelectedItem() ) );

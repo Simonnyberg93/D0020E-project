@@ -79,7 +79,7 @@ public class SelectcolorTestview extends AppCompatActivity implements CameraBrid
         Button btnBack = findViewById( R.id.btnBack );
         btnBack.setOnClickListener( v -> {
             searchThread.stopLoop();
-            startActivity( new Intent(SelectcolorTestview.this, soundSelection.class));
+            startActivity( new Intent(SelectcolorTestview.this, SoundSelection.class));
             finish();
         } );
 
@@ -139,18 +139,14 @@ public class SelectcolorTestview extends AppCompatActivity implements CameraBrid
         // read first frame
         frame1 = inputFrame.rgba();
         // use when testing on (some) emulator's.
-        //Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
-
+       // Imgproc.cvtColor( frame1, frame1, Imgproc.COLOR_BGR2RGB );
         /* Add the current frame to queue in search for object thread */
         if (frame1 != null) {
             searchThread.addFrame(frame1.clone());
         }
-        // draw our sensor locations, this will be removed, we do not want to draw on every frame.
         Point coordinate = searchThread.getCurrentLocation();
-        Point coordinate2 = searchThread.getSecondLocation();
         // For development purposes we draw a circle around the tracked object
         Imgproc.circle( frame1, coordinate, 20, WHITE );
-        Imgproc.circle( frame1, coordinate2, 20, WHITE );
 
         // make the image not mirrored
         Core.flip(frame1, frame1, 1);

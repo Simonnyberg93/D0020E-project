@@ -28,6 +28,10 @@
             android:exported="true"
             tools:ignore="MissingClass" />
         <activity
+            android:name=".SelectcolorTestview"
+            android:exported="true"
+            tools:ignore="MissingClass" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             tools:ignore="MissingClass">
@@ -38,7 +42,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".soundSelection"
+            android:name=".SoundSelection"
             tools:ignore="MissingClass" />
     </application>
 
