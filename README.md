@@ -1,5 +1,5 @@
 # D0020E-project
-To be able to run the app.
+To be able to run the app.  \n
 1 download android studio
 2 dowload the git project
 3 open android studio with the git project
