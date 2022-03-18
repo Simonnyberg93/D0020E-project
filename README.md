@@ -13,14 +13,6 @@ To be able to run the app.
 
 
 
-
-
-
-
-
-
-
-
 opencv-project
 
 
