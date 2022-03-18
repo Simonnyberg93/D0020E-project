@@ -1,4 +1,26 @@
 # D0020E-project
+To be able to run the app.
+1 download android studio
+2 dowload the git project
+3 open android studio with the git project
+4 run the android studio project on your android phone (emulator not supported)
+5 click play
+6 choose an apropriate color(testable on test button) and a soundprofile
+7 continue and play music =)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 opencv-project
 
 
