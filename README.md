@@ -1,12 +1,12 @@
 # D0020E-project
-To be able to run the app.  \n
-1 download android studio
-2 dowload the git project
-3 open android studio with the git project
-4 run the android studio project on your android phone (emulator not supported)
-5 click play
-6 choose an apropriate color(testable on test button) and a soundprofile
-7 continue and play music =)
+To be able to run the app.  <br />
+1 download android studio <br />
+2 dowload the git project <br />
+3 open android studio with the git project <br />
+4 run the android studio project on your android phone (emulator not supported) <br />
+5 click play <br />
+6 choose an apropriate color(testable on test button) and a soundprofile <br />
+7 continue and play music =) <br />
 
 
 
